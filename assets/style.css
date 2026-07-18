@@ -1,0 +1,72 @@
+.trainmon-monitor {
+    max-width: 920px;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #1f2933;
+}
+.trainmon-header h2 { margin-bottom: .2rem; }
+.trainmon-header p { margin-top: 0; color: #5b6470; }
+.trainmon-current {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 1.5rem;
+}
+.trainmon-card {
+    border-radius: 16px;
+    padding: 1rem;
+    border: 1px solid #d9dee5;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+.trainmon-card.trainmon-punctual { border-left: 10px solid #2e7d32; }
+.trainmon-card.trainmon-delayed { border-left: 10px solid #c62828; }
+.trainmon-direction { font-weight: 800; margin-bottom: .35rem; }
+.trainmon-time { font-size: 1.9rem; font-weight: 900; line-height: 1.1; }
+.trainmon-delay { margin-top: .5rem; font-weight: 800; }
+.trainmon-punctual .trainmon-delay { color: #2e7d32; }
+.trainmon-delayed .trainmon-delay { color: #c62828; }
+.trainmon-stats {
+    border-radius: 16px;
+    background: #f5f7fa;
+    padding: 1rem;
+    border: 1px solid #e4e8ee;
+}
+.trainmon-stats-title {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+}
+.trainmon-stats-title h3 { margin: 0 0 .8rem; }
+.trainmon-stats-title span { color: #5b6470; font-size: .95rem; }
+.trainmon-stat-section {
+    background: #fff;
+    border-radius: 14px;
+    border: 1px solid #e0e4ea;
+    padding: .9rem;
+    margin-bottom: 1rem;
+}
+.trainmon-stat-section h4 { margin: 0 0 .75rem; }
+.trainmon-direction-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 1rem;
+}
+.trainmon-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: .65rem;
+}
+.trainmon-stat-box {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: .75rem;
+    border: 1px solid #e4e8ee;
+}
+.trainmon-stat-value { font-size: 1.35rem; font-weight: 900; }
+.trainmon-small { color: #5b6470; font-size: .9rem; }
+@media (max-width: 520px) {
+    .trainmon-time { font-size: 1.55rem; }
+    .trainmon-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

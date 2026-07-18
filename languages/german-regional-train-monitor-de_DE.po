@@ -1,0 +1,274 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: German Regional Train Monitor 1.0.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-07-18 12:00+0200\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Domain: german-regional-train-monitor\n"
+
+msgid "German Regional Train Monitor"
+msgstr "German Regional Train Monitor"
+
+msgid "Train Monitor"
+msgstr "Train Monitor"
+
+msgid "Please enter a search term."
+msgstr "Bitte einen Suchbegriff eingeben."
+
+msgid "Searching stations …"
+msgstr "Suche Bahnhöfe …"
+
+msgid "Search failed."
+msgstr "Fehler bei der Suche."
+
+msgid "No stations found."
+msgstr "Keine Bahnhöfe gefunden."
+
+msgid "Network error during search."
+msgstr "Netzwerkfehler bei der Suche."
+
+msgid "Searching regional lines (this may take a moment) …"
+msgstr "Suche Regionallinien (kann einen Moment dauern) …"
+
+msgid "Line scan failed."
+msgstr "Fehler beim Linien-Scan."
+
+msgid "-- choose a line --"
+msgstr "– Linie wählen –"
+
+msgid "Network error during line scan."
+msgstr "Netzwerkfehler beim Linien-Scan."
+
+msgid "You are not allowed to do this."
+msgstr "Keine Berechtigung."
+
+msgid "No station selected."
+msgstr "Kein Bahnhof gewählt."
+
+msgid "No regional trains were found at this station."
+msgstr "An diesem Bahnhof wurden keine Regionalzüge gefunden."
+
+msgid "Toward %s"
+msgstr "Richtung %s"
+
+msgid "OK"
+msgstr "OK"
+
+msgid "error"
+msgstr "Fehler"
+
+msgid "not configured"
+msgstr "nicht konfiguriert"
+
+msgid "Manual fetch completed."
+msgstr "Manueller Abruf wurde ausgeführt."
+
+msgid "Selection saved. Please click \"Fetch now\" once."
+msgstr "Auswahl gespeichert. Bitte einmal „Jetzt abrufen“ klicken."
+
+msgid "Selection incomplete – please choose a station and a line."
+msgstr "Auswahl unvollständig – bitte Bahnhof und Linie wählen."
+
+msgid "Monitored connection"
+msgstr "Überwachte Verbindung"
+
+msgid "No station selected yet. Please pick a station and line below."
+msgstr "Noch kein Bahnhof gewählt. Bitte unten Bahnhof und Linie auswählen."
+
+msgid "Station"
+msgstr "Bahnhof"
+
+msgid "Line"
+msgstr "Linie"
+
+msgid "Directions"
+msgstr "Fahrtrichtungen"
+
+msgid "Choose a different connection"
+msgstr "Andere Verbindung wählen"
+
+msgid "First search for the station, then choose a regional line that stops there. The line scan reads the next 24 hours and may take a moment."
+msgstr "Zuerst den Bahnhof suchen, dann eine dort haltende Regionallinie wählen. Der Linien-Scan wertet die nächsten 24 Stunden aus und kann einen Moment dauern."
+
+msgid "1. Search station"
+msgstr "1. Bahnhof suchen"
+
+msgid "e.g. Osnabrück"
+msgstr "z. B. Osnabrück"
+
+msgid "Search station"
+msgstr "Bahnhof suchen"
+
+msgid "2. Choose line"
+msgstr "2. Linie wählen"
+
+msgid "3. Directions (labels editable)"
+msgstr "3. Fahrtrichtungen (Beschriftung anpassbar)"
+
+msgid "Direction 1"
+msgstr "Richtung 1"
+
+msgid "Direction 2"
+msgstr "Richtung 2"
+
+msgid "Save selection"
+msgstr "Auswahl speichern"
+
+msgid "Status"
+msgstr "Status"
+
+msgid "API credentials"
+msgstr "API-Zugangsdaten"
+
+msgid "found"
+msgstr "gefunden"
+
+msgid "missing"
+msgstr "fehlen"
+
+msgid "Last fetch"
+msgstr "Letzter Abruf"
+
+msgid "never"
+msgstr "nie"
+
+msgid "Status of last fetch"
+msgstr "Status letzter Abruf"
+
+msgid "unknown"
+msgstr "unbekannt"
+
+msgid "Trips imported/updated last time"
+msgstr "Zuletzt importierte/aktualisierte Fahrten"
+
+msgid "Next WP-Cron"
+msgstr "Nächster WP-Cron"
+
+msgid "not scheduled"
+msgstr "nicht geplant"
+
+msgid "Stored records (this connection)"
+msgstr "Gespeicherte Datensätze (diese Verbindung)"
+
+msgid "Last error"
+msgstr "Letzter Fehler"
+
+msgid "Fetch now"
+msgstr "Jetzt abrufen"
+
+msgid "Quick stats, last 30 days"
+msgstr "Kurzstatistik letzte 30 Tage"
+
+msgid "On time:"
+msgstr "Pünktlich:"
+
+msgid "Average delay:"
+msgstr "Durchschnittliche Verspätung:"
+
+msgid "minutes"
+msgstr "Minuten"
+
+msgid "Cancellations:"
+msgstr "Ausfälle:"
+
+msgid "Embedding"
+msgstr "Einbindung"
+
+msgid "Default:"
+msgstr "Standard:"
+
+msgid "With period filter:"
+msgstr "Mit Zeitraumfilter:"
+
+msgid "Configuration"
+msgstr "Konfiguration"
+
+msgid "The DB API credentials must be defined in %s:"
+msgstr "Die DB-Zugangsdaten müssen in %s stehen:"
+
+msgid "Recommendation: for reliable statistics, set up a real server cron that calls WordPress cron regularly."
+msgstr "Empfehlung: Für eine zuverlässige Statistik einen echten Server-Cron einrichten, der WordPress-Cron regelmäßig aufruft."
+
+msgid "Could not read the station list from the DB API."
+msgstr "Stationsliste der DB-API konnte nicht gelesen werden."
+
+msgid "The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php."
+msgstr "DB-Timetables-API-Zugangsdaten fehlen. Bitte DB_TIMETABLES_CLIENT_ID und DB_TIMETABLES_API_KEY in wp-config.php setzen."
+
+msgid "API error: %s"
+msgstr "API-Fehler: %s"
+
+msgid "API HTTP status: %d"
+msgstr "API-HTTP-Status: %d"
+
+msgid "Could not read the XML from the DB API."
+msgstr "XML der DB-API konnte nicht gelesen werden."
+
+msgid "Every five minutes"
+msgstr "Alle fünf Minuten"
+
+msgid "German Regional Train Monitor is not configured yet. Please choose a station and line under Settings."
+msgstr "German Regional Train Monitor ist noch nicht konfiguriert. Bitte unter Einstellungen einen Bahnhof und eine Linie wählen."
+
+msgid "%1$s from %2$s"
+msgstr "%1$s ab %2$s"
+
+msgid "Upcoming departures and recorded punctuality."
+msgstr "Nächste Verbindungen und gespeicherte Pünktlichkeitswerte."
+
+msgid "Punctuality: %1$s from %2$s"
+msgstr "Pünktlichkeit: %1$s ab %2$s"
+
+msgid "Overall"
+msgstr "Gesamt"
+
+msgid "On time means: at most %d minutes delay. Cancellations are counted separately and are not included in the average delay."
+msgstr "Pünktlich bedeutet hier: maximal %d Minuten Verspätung. Ausfälle werden separat gezählt und nicht in die Durchschnittsverspätung eingerechnet."
+
+msgid "No upcoming departure found."
+msgstr "Aktuell keine Verbindung gefunden."
+
+msgid "Train cancelled"
+msgstr "Zug fällt aus"
+
+msgid "+%d min delay"
+msgstr "+%d Min Verspätung"
+
+msgid "on time"
+msgstr "pünktlich"
+
+msgid "Platform %s"
+msgstr "Gleis %s"
+
+msgid "scheduled: %s"
+msgstr "geplant: %s Uhr"
+
+msgid "min"
+msgstr "Min"
+
+msgid "average"
+msgstr "Durchschnitt"
+
+msgid "5-10 min"
+msgstr "5-10 Min"
+
+msgid "11-20 min"
+msgstr "11-20 Min"
+
+msgid "21+ min"
+msgstr "ab 21 Min"
+
+msgid "cancellations"
+msgstr "Ausfälle"
+
+msgid "total trips"
+msgstr "Fahrten gesamt"
+
+msgid "entire recorded period"
+msgstr "gesamter gespeicherter Zeitraum"
+
+msgid "last %s days"
+msgstr "letzte %s Tage"

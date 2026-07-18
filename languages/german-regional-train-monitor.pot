@@ -1,0 +1,273 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: German Regional Train Monitor 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/german-regional-train-monitor\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-07-18 12:00+0200\n"
+"X-Domain: german-regional-train-monitor\n"
+
+msgid "German Regional Train Monitor"
+msgstr ""
+
+msgid "Train Monitor"
+msgstr ""
+
+msgid "Please enter a search term."
+msgstr ""
+
+msgid "Searching stations …"
+msgstr ""
+
+msgid "Search failed."
+msgstr ""
+
+msgid "No stations found."
+msgstr ""
+
+msgid "Network error during search."
+msgstr ""
+
+msgid "Searching regional lines (this may take a moment) …"
+msgstr ""
+
+msgid "Line scan failed."
+msgstr ""
+
+msgid "-- choose a line --"
+msgstr ""
+
+msgid "Network error during line scan."
+msgstr ""
+
+msgid "You are not allowed to do this."
+msgstr ""
+
+msgid "No station selected."
+msgstr ""
+
+msgid "No regional trains were found at this station."
+msgstr ""
+
+msgid "Toward %s"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "error"
+msgstr ""
+
+msgid "not configured"
+msgstr ""
+
+msgid "Manual fetch completed."
+msgstr ""
+
+msgid "Selection saved. Please click \"Fetch now\" once."
+msgstr ""
+
+msgid "Selection incomplete – please choose a station and a line."
+msgstr ""
+
+msgid "Monitored connection"
+msgstr ""
+
+msgid "No station selected yet. Please pick a station and line below."
+msgstr ""
+
+msgid "Station"
+msgstr ""
+
+msgid "Line"
+msgstr ""
+
+msgid "Directions"
+msgstr ""
+
+msgid "Choose a different connection"
+msgstr ""
+
+msgid "First search for the station, then choose a regional line that stops there. The line scan reads the next 24 hours and may take a moment."
+msgstr ""
+
+msgid "1. Search station"
+msgstr ""
+
+msgid "e.g. Osnabrück"
+msgstr ""
+
+msgid "Search station"
+msgstr ""
+
+msgid "2. Choose line"
+msgstr ""
+
+msgid "3. Directions (labels editable)"
+msgstr ""
+
+msgid "Direction 1"
+msgstr ""
+
+msgid "Direction 2"
+msgstr ""
+
+msgid "Save selection"
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "API credentials"
+msgstr ""
+
+msgid "found"
+msgstr ""
+
+msgid "missing"
+msgstr ""
+
+msgid "Last fetch"
+msgstr ""
+
+msgid "never"
+msgstr ""
+
+msgid "Status of last fetch"
+msgstr ""
+
+msgid "unknown"
+msgstr ""
+
+msgid "Trips imported/updated last time"
+msgstr ""
+
+msgid "Next WP-Cron"
+msgstr ""
+
+msgid "not scheduled"
+msgstr ""
+
+msgid "Stored records (this connection)"
+msgstr ""
+
+msgid "Last error"
+msgstr ""
+
+msgid "Fetch now"
+msgstr ""
+
+msgid "Quick stats, last 30 days"
+msgstr ""
+
+msgid "On time:"
+msgstr ""
+
+msgid "Average delay:"
+msgstr ""
+
+msgid "minutes"
+msgstr ""
+
+msgid "Cancellations:"
+msgstr ""
+
+msgid "Embedding"
+msgstr ""
+
+msgid "Default:"
+msgstr ""
+
+msgid "With period filter:"
+msgstr ""
+
+msgid "Configuration"
+msgstr ""
+
+msgid "The DB API credentials must be defined in %s:"
+msgstr ""
+
+msgid "Recommendation: for reliable statistics, set up a real server cron that calls WordPress cron regularly."
+msgstr ""
+
+msgid "Could not read the station list from the DB API."
+msgstr ""
+
+msgid "The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php."
+msgstr ""
+
+msgid "API error: %s"
+msgstr ""
+
+msgid "API HTTP status: %d"
+msgstr ""
+
+msgid "Could not read the XML from the DB API."
+msgstr ""
+
+msgid "Every five minutes"
+msgstr ""
+
+msgid "German Regional Train Monitor is not configured yet. Please choose a station and line under Settings."
+msgstr ""
+
+msgid "%1$s from %2$s"
+msgstr ""
+
+msgid "Upcoming departures and recorded punctuality."
+msgstr ""
+
+msgid "Punctuality: %1$s from %2$s"
+msgstr ""
+
+msgid "Overall"
+msgstr ""
+
+msgid "On time means: at most %d minutes delay. Cancellations are counted separately and are not included in the average delay."
+msgstr ""
+
+msgid "No upcoming departure found."
+msgstr ""
+
+msgid "Train cancelled"
+msgstr ""
+
+msgid "+%d min delay"
+msgstr ""
+
+msgid "on time"
+msgstr ""
+
+msgid "Platform %s"
+msgstr ""
+
+msgid "scheduled: %s"
+msgstr ""
+
+msgid "min"
+msgstr ""
+
+msgid "average"
+msgstr ""
+
+msgid "5-10 min"
+msgstr ""
+
+msgid "11-20 min"
+msgstr ""
+
+msgid "21+ min"
+msgstr ""
+
+msgid "cancellations"
+msgstr ""
+
+msgid "total trips"
+msgstr ""
+
+msgid "entire recorded period"
+msgstr ""
+
+msgid "last %s days"
+msgstr ""
