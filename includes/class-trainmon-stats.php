@@ -8,11 +8,18 @@ class TrainMon_Stats {
      * @param string      $line      Linie (z. B. RE9)
      * @param string      $period    7|30|90|365|all
      * @param string|null $direction Richtungs-Schluessel oder null (beide Richtungen)
+     * @param string      $year      Jahr (YYYY) oder '' (dann Zeitraum-Filter)
+     * @param string      $month     Monat (MM) oder '' (dann ganzes Jahr, wenn Jahr gesetzt)
      */
-    public static function get_stats(string $eva, string $line, string $period = '30', ?string $direction = null): array {
+    public static function get_stats(string $eva, string $line, string $period = '30', ?string $direction = null, string $year = '', string $month = ''): array {
         global $wpdb;
         $table = TrainMon_Storage::table_name();
-        [$period_sql, $period_args] = TrainMon_Helpers::period_to_sql($period);
+
+        // Kalenderauswahl (Jahr/Monat) hat Vorrang vor dem Zeitraum-Filter.
+        [$range_sql, $range_args] = TrainMon_Helpers::range_to_sql($year, $month);
+        if ($range_sql === '') {
+            [$range_sql, $range_args] = TrainMon_Helpers::period_to_sql($period);
+        }
 
         // Gemeinsame WHERE-Klausel fuer alle Teilabfragen.
         $where = " WHERE station_eva = %s AND train_line = %s ";
@@ -21,8 +28,8 @@ class TrainMon_Stats {
             $where .= " AND direction = %s ";
             $args[] = $direction;
         }
-        $where .= $period_sql;
-        $args = array_merge($args, $period_args);
+        $where .= $range_sql;
+        $args = array_merge($args, $range_args);
 
         $total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table $where", $args));
         if ($total === 0) {

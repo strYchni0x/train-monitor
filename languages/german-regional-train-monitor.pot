@@ -206,6 +206,9 @@ msgstr ""
 msgid "Could not read the XML from the DB API."
 msgstr ""
 
+msgid "Year %s"
+msgstr ""
+
 msgid "Every five minutes"
 msgstr ""
 
@@ -264,6 +267,18 @@ msgid "cancellations"
 msgstr ""
 
 msgid "total trips"
+msgstr ""
+
+msgid "All"
+msgstr ""
+
+msgid "Year"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "Show"
 msgstr ""
 
 msgid "entire recorded period"

@@ -19,6 +19,8 @@ the official [Deutsche Bahn Timetables API](https://developers.deutschebahn.com/
   red = delay/cancellation) via the shortcode `[train_monitor]`.
 - **Punctuality statistics** per direction with a period filter (7 / 30 / 90 /
   365 days or the entire recorded period); cancellations counted separately.
+- **Year / month picker** on the front end: inspect a specific month or whole
+  year to compare e.g. winter vs summer punctuality.
 - Data collected every 5 minutes via WP-Cron.
 
 ## Installation

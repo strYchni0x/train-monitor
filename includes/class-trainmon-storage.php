@@ -125,4 +125,18 @@ class TrainMon_Storage {
             strtoupper($line)
         ));
     }
+
+    /** Jahre (YYYY), fuer die Daten dieser Verbindung vorliegen, neueste zuerst. */
+    public static function recorded_years(string $eva, string $line): array {
+        global $wpdb;
+        $table = self::table_name();
+        $years = $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT YEAR(planned_time) AS y FROM $table
+             WHERE station_eva = %s AND train_line = %s
+             ORDER BY y DESC",
+            $eva,
+            strtoupper($line)
+        ));
+        return array_values(array_filter(array_map('strval', (array) $years)));
+    }
 }

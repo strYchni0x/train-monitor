@@ -34,6 +34,8 @@ over configurable periods.
   on delay or cancellation) via the shortcode `[train_monitor]`.
 * Punctuality statistics per direction with a period filter (7, 30, 90, 365 days
   or the entire recorded period). Cancellations are counted separately.
+* Front-end year and month picker: inspect a specific month or a whole year to
+  compare, for example, winter versus summer punctuality.
 * Data is collected every 5 minutes via WP-Cron.
 * Source language English, with a bundled German translation (de_DE).
 
@@ -93,6 +95,11 @@ API and put the client id and API key into `wp-config.php`.
 = Why are there no statistics yet? =
 Statistics build up over time as the plugin records departures every five
 minutes. Meaningful numbers appear after a few days.
+
+= Can I compare seasons, e.g. winter vs summer? =
+Yes. The front-end display has a year and month picker. Select a whole year or a
+single month to see the punctuality figures for exactly that period. Once enough
+months are recorded you can compare them directly.
 
 == Screenshots ==
 

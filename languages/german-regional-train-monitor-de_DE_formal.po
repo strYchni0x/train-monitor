@@ -207,6 +207,9 @@ msgstr "API-HTTP-Status: %d"
 msgid "Could not read the XML from the DB API."
 msgstr "XML der DB-API konnte nicht gelesen werden."
 
+msgid "Year %s"
+msgstr "Jahr %s"
+
 msgid "Every five minutes"
 msgstr "Alle fünf Minuten"
 
@@ -266,6 +269,18 @@ msgstr "Ausfälle"
 
 msgid "total trips"
 msgstr "Fahrten gesamt"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "Year"
+msgstr "Jahr"
+
+msgid "Month"
+msgstr "Monat"
+
+msgid "Show"
+msgstr "Anzeigen"
 
 msgid "entire recorded period"
 msgstr "gesamter gespeicherter Zeitraum"

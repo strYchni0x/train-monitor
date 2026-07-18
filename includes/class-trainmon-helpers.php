@@ -77,6 +77,50 @@ class TrainMon_Helpers {
         return [' AND planned_time >= %s ', [$from]];
     }
 
+    public static function valid_year(string $year): bool {
+        return (bool) preg_match('/^\d{4}$/', $year);
+    }
+
+    public static function valid_month(string $month): bool {
+        return (bool) preg_match('/^(0[1-9]|1[0-2])$/', $month);
+    }
+
+    /**
+     * SQL-Bereich fuer eine Kalenderauswahl:
+     * - Jahr + Monat -> genau dieser Monat
+     * - nur Jahr     -> das ganze Jahr
+     * - sonst        -> leer (dann greift der Zeitraum-Filter)
+     */
+    public static function range_to_sql(string $year, string $month): array {
+        if (!self::valid_year($year)) {
+            return ['', []];
+        }
+        if (self::valid_month($month)) {
+            $start = DateTimeImmutable::createFromFormat('!Y-m-d', $year . '-' . $month . '-01', wp_timezone());
+            if (!$start) { return ['', []]; }
+            $next = $start->modify('+1 month');
+        } else {
+            $start = DateTimeImmutable::createFromFormat('!Y-m-d', $year . '-01-01', wp_timezone());
+            if (!$start) { return ['', []]; }
+            $next = $start->modify('+1 year');
+        }
+        return [
+            ' AND planned_time >= %s AND planned_time < %s ',
+            [$start->format('Y-m-d H:i:s'), $next->format('Y-m-d H:i:s')],
+        ];
+    }
+
+    /** Lokalisierte Beschriftung fuer die aktuelle Kalenderauswahl. */
+    public static function range_label(string $year, string $month): string {
+        if (!self::valid_year($year)) { return ''; }
+        if (self::valid_month($month)) {
+            $name = $GLOBALS['wp_locale']->get_month($month);
+            return $name . ' ' . $year;
+        }
+        /* translators: %s: year */
+        return sprintf(__('Year %s', 'german-regional-train-monitor'), $year);
+    }
+
     public static function format_decimal(float $value): string {
         return number_format($value, 1, ',', '.');
     }

@@ -66,6 +66,29 @@
 }
 .trainmon-stat-value { font-size: 1.35rem; font-weight: 900; }
 .trainmon-small { color: #5b6470; font-size: .9rem; }
+.trainmon-filter {
+    display: flex;
+    gap: .5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0 0 1rem;
+}
+.trainmon-filter select {
+    padding: .35rem .5rem;
+    border-radius: 8px;
+    border: 1px solid #d9dee5;
+    background: #fff;
+}
+.trainmon-btn {
+    padding: .38rem .9rem;
+    border-radius: 8px;
+    border: 1px solid #1f7a5a;
+    background: #1f7a5a;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+.trainmon-btn:hover { background: #17603f; }
 @media (max-width: 520px) {
     .trainmon-time { font-size: 1.55rem; }
     .trainmon-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

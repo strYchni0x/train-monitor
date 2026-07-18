@@ -25,7 +25,20 @@ class TrainMon_Renderer {
         $line = (string) $settings['line'];
         $directions = $settings['directions'];
 
-        $stats_all = TrainMon_Stats::get_stats($eva, $line, $period, null);
+        // Optional calendar filter (year/month) from the query string. Read-only
+        // display filter, no state change -> no nonce needed.
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $sel_year = isset($_GET['trainmon_year']) ? sanitize_text_field(wp_unslash($_GET['trainmon_year'])) : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        $sel_month = isset($_GET['trainmon_month']) ? sanitize_text_field(wp_unslash($_GET['trainmon_month'])) : '';
+        if (!TrainMon_Helpers::valid_year($sel_year)) { $sel_year = ''; }
+        if (!TrainMon_Helpers::valid_month($sel_month)) { $sel_month = ''; }
+
+        $active_label = ($sel_year !== '')
+            ? TrainMon_Helpers::range_label($sel_year, $sel_month)
+            : self::period_label($period);
+
+        $stats_all = TrainMon_Stats::get_stats($eva, $line, $period, null, $sel_year, $sel_month);
 
         ob_start();
         ?>
@@ -49,12 +62,13 @@ class TrainMon_Renderer {
                         /* translators: 1: line name, 2: station name */
                         echo esc_html(sprintf(__('Punctuality: %1$s from %2$s', 'german-regional-train-monitor'), $line, $settings['station_name']));
                     ?></h3>
-                    <span><?php echo esc_html(self::period_label($period)); ?></span>
+                    <span><?php echo esc_html($active_label); ?></span>
                 </div>
+                <?php echo self::filter_form($eva, $line, $sel_year, $sel_month); ?>
                 <?php echo self::stats_block(__('Overall', 'german-regional-train-monitor'), $stats_all); ?>
                 <div class="trainmon-direction-stats">
                     <?php foreach ($directions as $dir):
-                        $stats_dir = TrainMon_Stats::get_stats($eva, $line, $period, (string) $dir['key']);
+                        $stats_dir = TrainMon_Stats::get_stats($eva, $line, $period, (string) $dir['key'], $sel_year, $sel_month);
                         echo self::stats_block((string) $dir['label'], $stats_dir, true);
                     endforeach; ?>
                 </div>
@@ -112,6 +126,30 @@ class TrainMon_Renderer {
                 <div class="trainmon-stat-box"><div class="trainmon-stat-value">' . esc_html((string) $stats['total']) . '</div><div class="trainmon-small">' . esc_html__('total trips', 'german-regional-train-monitor') . '</div></div>
             </div>
         </div>';
+    }
+
+    /** Year + month picker (GET form) so visitors can inspect a specific month. */
+    private static function filter_form(string $eva, string $line, string $sel_year, string $sel_month): string {
+        $years = TrainMon_Storage::recorded_years($eva, $line);
+        if (empty($years)) { return ''; }
+        $all = esc_html__('All', 'german-regional-train-monitor');
+
+        $year_opts = '<option value="">' . $all . '</option>';
+        foreach ($years as $y) {
+            $year_opts .= '<option value="' . esc_attr($y) . '"' . selected($sel_year, $y, false) . '>' . esc_html($y) . '</option>';
+        }
+        $month_opts = '<option value="">' . $all . '</option>';
+        for ($m = 1; $m <= 12; $m++) {
+            $mm = sprintf('%02d', $m);
+            $name = $GLOBALS['wp_locale']->get_month($mm);
+            $month_opts .= '<option value="' . esc_attr($mm) . '"' . selected($sel_month, $mm, false) . '>' . esc_html($name) . '</option>';
+        }
+
+        return '<form method="get" class="trainmon-filter">'
+            . '<select name="trainmon_year" aria-label="' . esc_attr__('Year', 'german-regional-train-monitor') . '">' . $year_opts . '</select>'
+            . '<select name="trainmon_month" aria-label="' . esc_attr__('Month', 'german-regional-train-monitor') . '">' . $month_opts . '</select>'
+            . '<button type="submit" class="trainmon-btn">' . esc_html__('Show', 'german-regional-train-monitor') . '</button>'
+            . '</form>';
     }
 
     private static function period_label(string $period): string {

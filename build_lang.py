@@ -109,6 +109,11 @@ DE = {
     "total trips": "Fahrten gesamt",
     "entire recorded period": "gesamter gespeicherter Zeitraum",
     "last %s days": "letzte %s Tage",
+    "Year %s": "Jahr %s",
+    "All": "Alle",
+    "Year": "Jahr",
+    "Month": "Monat",
+    "Show": "Anzeigen",
 }
 
 FUNCS = r"(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)"
