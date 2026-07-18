@@ -45,10 +45,35 @@ class TrainMon_Plugin {
     public static function activate(): void {
         TrainMon_Storage::create_table();
         TrainMon_Storage::backfill_station_eva(self::DEFAULT_EVA);
+        self::adopt_legacy_data_if_present();
         update_option(self::OPTION_DB_VERSION, TRAINMON_VERSION);
         if (!wp_next_scheduled(self::CRON_HOOK)) {
             wp_schedule_event(time() + 60, self::CRON_INTERVAL, self::CRON_HOOK);
         }
+    }
+
+    /**
+     * Backward compatibility: if this install already has records from the
+     * predecessor plugin (RE9 Diepholz Monitor) but no selection has been saved
+     * yet, seed the original RE9/Diepholz selection so the existing data shows up
+     * automatically. Never runs on a fresh install (guarded by has_rows()).
+     */
+    private static function adopt_legacy_data_if_present(): void {
+        if (get_option(self::OPTION_SETTINGS, null) !== null) {
+            return;
+        }
+        if (!TrainMon_Storage::has_rows()) {
+            return;
+        }
+        update_option(self::OPTION_SETTINGS, [
+            'station_eva'  => self::DEFAULT_EVA,
+            'station_name' => 'Diepholz',
+            'line'         => self::DEFAULT_LINE,
+            'directions'   => [
+                ['key' => 'HB', 'label' => 'Richtung Bremen/Bremerhaven', 'terminus' => 'Bremen Hbf'],
+                ['key' => 'OS', 'label' => 'Richtung Osnabrück', 'terminus' => 'Osnabrück Hbf'],
+            ],
+        ]);
     }
 
     public static function deactivate(): void {
@@ -66,6 +91,7 @@ class TrainMon_Plugin {
         }
         TrainMon_Storage::create_table();
         TrainMon_Storage::backfill_station_eva(self::DEFAULT_EVA);
+        self::adopt_legacy_data_if_present();
         update_option(self::OPTION_DB_VERSION, TRAINMON_VERSION);
     }
 

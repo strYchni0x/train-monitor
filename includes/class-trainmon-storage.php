@@ -126,6 +126,13 @@ class TrainMon_Storage {
         ));
     }
 
+    /** Gibt es ueberhaupt gespeicherte Zeilen (aus einer Vorgaenger-Installation)? */
+    public static function has_rows(): bool {
+        global $wpdb;
+        $table = self::table_name();
+        return (bool) $wpdb->get_var("SELECT EXISTS(SELECT 1 FROM $table LIMIT 1)");
+    }
+
     /** Jahre (YYYY), fuer die Daten dieser Verbindung vorliegen, neueste zuerst. */
     public static function recorded_years(string $eva, string $line): array {
         global $wpdb;
