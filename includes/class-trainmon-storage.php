@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) { exit; }
  * name is built from $wpdb->prefix plus a fixed suffix and cannot be passed as a
  * prepared placeholder, while all user-supplied values ARE passed through
  * $wpdb->prepare(). The data is short-lived monitoring data, so no object cache
- * is used. The class-wide phpcs:disable below documents exactly that.
+ * is used. The class-wide sniff annotation below documents exactly that.
  */
 class TrainMon_Storage {
     // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
