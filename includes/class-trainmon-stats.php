@@ -21,7 +21,10 @@ class TrainMon_Stats {
             [$range_sql, $range_args] = TrainMon_Helpers::period_to_sql($period);
         }
 
-        // Gemeinsame WHERE-Klausel fuer alle Teilabfragen.
+        // Gemeinsame WHERE-Klausel fuer alle Teilabfragen. $where und $condition
+        // bestehen ausschliesslich aus festen Klauseln + Platzhaltern; alle Werte
+        // gehen ueber $args durch $wpdb->prepare(). Der Tabellenname stammt aus
+        // $wpdb->prefix (kann kein Platzhalter sein). Custom-Table -> kein Cache.
         $where = " WHERE station_eva = %s AND train_line = %s ";
         $args = [$eva, strtoupper($line)];
         if ($direction !== null && $direction !== '') {
@@ -31,7 +34,7 @@ class TrainMon_Stats {
         $where .= $range_sql;
         $args = array_merge($args, $range_args);
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where holds only fixed clauses + placeholders; all values passed to prepare() via $args.
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table $where", $args));
         if ($total === 0) {
             return [
@@ -46,29 +49,26 @@ class TrainMon_Stats {
             ];
         }
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where holds only fixed clauses + placeholders; all values passed to prepare() via $args.
         $punctual = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM $table $where AND is_cancelled = 0 AND delay_minutes <= %d",
             array_merge($args, [TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES])
         ));
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where holds only fixed clauses + placeholders; all values passed to prepare() via $args.
         $avg_delay = (float) $wpdb->get_var($wpdb->prepare(
             "SELECT AVG(delay_minutes) FROM $table $where AND is_cancelled = 0",
             $args
         ));
         $bucket = function (string $condition) use ($wpdb, $table, $where, $args): int {
             // $condition is one of the fixed literals passed below (no user input).
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where/$condition are fixed clauses; values passed to prepare() via $args.
             return (int) $wpdb->get_var($wpdb->prepare(
                 "SELECT COUNT(*) FROM $table $where AND is_cancelled = 0 AND $condition",
                 $args
             ));
         };
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- $where holds only fixed clauses + placeholders; all values passed to prepare() via $args.
         $cancelled = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM $table $where AND is_cancelled = 1",
             $args
         ));
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $punctual_percent_raw = ($punctual / $total) * 100;
 
         return [

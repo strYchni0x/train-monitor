@@ -3,13 +3,16 @@ if (!defined('ABSPATH')) { exit; }
 
 /**
  * Storage layer for the plugin's own table {prefix}re9_diepholz_delays.
- * The direct $wpdb calls below are unavoidable for a custom table; table names
- * cannot be passed as prepared placeholders (they are built from $wpdb->prefix
- * plus a fixed suffix), and all user-supplied values are passed through
- * $wpdb->prepare(). Results are short-lived monitoring data, so no object cache
- * is used. The phpcs:ignore annotations document exactly that.
+ *
+ * The direct $wpdb calls below are unavoidable for a custom table: the table
+ * name is built from $wpdb->prefix plus a fixed suffix and cannot be passed as a
+ * prepared placeholder, while all user-supplied values ARE passed through
+ * $wpdb->prepare(). The data is short-lived monitoring data, so no object cache
+ * is used. The class-wide phpcs:disable below documents exactly that.
  */
 class TrainMon_Storage {
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+
     public static function table_name(): string {
         global $wpdb;
         return $wpdb->prefix . 're9_diepholz_delays';
@@ -51,7 +54,6 @@ class TrainMon_Storage {
     public static function backfill_station_eva(string $eva): void {
         global $wpdb;
         $table = self::table_name();
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; value is prepared.
         $wpdb->query($wpdb->prepare(
             "UPDATE $table SET station_eva = %s WHERE station_eva = '' OR station_eva IS NULL",
             $eva
@@ -86,14 +88,11 @@ class TrainMon_Storage {
             'raw_json' => $stop['raw'] ?? null,
             'last_seen' => $now,
         ];
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; value is prepared.
         $existing_id = $wpdb->get_var($wpdb->prepare("SELECT id FROM $table WHERE stop_id = %s", $data['stop_id']));
         if ($existing_id) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table update via $wpdb->update() (values escaped internally).
             $result = $wpdb->update($table, $data, ['id' => (int) $existing_id]);
         } else {
             $data['first_seen'] = $now;
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table insert via $wpdb->insert() (values escaped internally).
             $result = $wpdb->insert($table, $data);
         }
         return $result !== false;
@@ -103,7 +102,6 @@ class TrainMon_Storage {
         global $wpdb;
         $table = self::table_name();
         $now = current_time('mysql');
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; values are prepared.
         $row = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT * FROM $table
@@ -126,7 +124,6 @@ class TrainMon_Storage {
     public static function count_rows(): int {
         global $wpdb;
         $table = self::table_name();
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; no user input.
         return (int) $wpdb->get_var("SELECT COUNT(*) FROM $table");
     }
 
@@ -134,7 +131,6 @@ class TrainMon_Storage {
     public static function count_rows_for(string $eva, string $line): int {
         global $wpdb;
         $table = self::table_name();
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; values are prepared.
         return (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM $table WHERE station_eva = %s AND train_line = %s",
             $eva,
@@ -146,7 +142,6 @@ class TrainMon_Storage {
     public static function has_rows(): bool {
         global $wpdb;
         $table = self::table_name();
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; no user input.
         return (bool) $wpdb->get_var("SELECT EXISTS(SELECT 1 FROM $table LIMIT 1)");
     }
 
@@ -154,7 +149,6 @@ class TrainMon_Storage {
     public static function recorded_years(string $eva, string $line): array {
         global $wpdb;
         $table = self::table_name();
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- custom table name from $wpdb->prefix; values are prepared.
         $years = $wpdb->get_col($wpdb->prepare(
             "SELECT DISTINCT YEAR(planned_time) AS y FROM $table
              WHERE station_eva = %s AND train_line = %s
@@ -164,4 +158,6 @@ class TrainMon_Storage {
         ));
         return array_values(array_filter(array_map('strval', (array) $years)));
     }
+
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 }
