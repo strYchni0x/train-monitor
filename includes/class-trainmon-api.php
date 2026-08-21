@@ -19,21 +19,13 @@ class TrainMon_API {
             }
         }
         if (!$planned && $errors) {
-            throw new RuntimeException(implode(' | ', array_unique($errors)));
-        }
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            foreach ($errors as $err) {
-                error_log('German Regional Train Monitor (partial fetch failed): ' . $err);
-            }
+            throw new RuntimeException(esc_html(implode(' | ', array_unique($errors))));
         }
         // Change data is optional: without fchg the planned times remain.
         try {
             $changes = $this->fetch_changes_indexed($eva);
         } catch (RuntimeException $e) {
             $changes = [];
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('German Regional Train Monitor (fchg failed): ' . $e->getMessage());
-            }
         }
         $result = [];
         foreach ($planned as $stop) {
@@ -56,7 +48,7 @@ class TrainMon_API {
         libxml_use_internal_errors(true);
         $xml = simplexml_load_string($body);
         if (!$xml) {
-            throw new RuntimeException(__('Could not read the station list from the DB API.', 'german-regional-train-monitor'));
+            throw new RuntimeException(esc_html__('Could not read the station list from the DB API.', 'german-regional-train-monitor'));
         }
         $out = [];
         foreach ($xml->station as $st) {
@@ -88,7 +80,7 @@ class TrainMon_API {
             }
         }
         if (!$planned && $errors) {
-            throw new RuntimeException(implode(' | ', array_unique($errors)));
+            throw new RuntimeException(esc_html(implode(' | ', array_unique($errors))));
         }
 
         // Pro Linie je "naechster Halt" die Zielbahnhoefe zaehlen.
@@ -149,7 +141,7 @@ class TrainMon_API {
     /** Authentifizierter GET gegen die DB API; liefert den Response-Body. */
     private function http_get(string $url): string {
         if (!defined('DB_TIMETABLES_CLIENT_ID') || !defined('DB_TIMETABLES_API_KEY')) {
-            throw new RuntimeException(__('The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php.', 'german-regional-train-monitor'));
+            throw new RuntimeException(esc_html__('The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php.', 'german-regional-train-monitor'));
         }
         $response = wp_remote_get($url, [
             'timeout' => 30,
@@ -161,12 +153,12 @@ class TrainMon_API {
         ]);
         if (is_wp_error($response)) {
             /* translators: %s: error message from the HTTP request */
-            throw new RuntimeException(sprintf(__('API error: %s', 'german-regional-train-monitor'), $response->get_error_message()));
+            throw new RuntimeException(esc_html(sprintf(__('API error: %s', 'german-regional-train-monitor'), $response->get_error_message())));
         }
         $status = (int) wp_remote_retrieve_response_code($response);
         if ($status < 200 || $status >= 300) {
             /* translators: %d: HTTP status code */
-            throw new RuntimeException(sprintf(__('API HTTP status: %d', 'german-regional-train-monitor'), $status));
+            throw new RuntimeException(esc_html(sprintf(__('API HTTP status: %d', 'german-regional-train-monitor'), $status)));
         }
         return (string) wp_remote_retrieve_body($response);
     }
@@ -177,7 +169,7 @@ class TrainMon_API {
         libxml_use_internal_errors(true);
         $xml = simplexml_load_string($body);
         if (!$xml) {
-            throw new RuntimeException(__('Could not read the XML from the DB API.', 'german-regional-train-monitor'));
+            throw new RuntimeException(esc_html__('Could not read the XML from the DB API.', 'german-regional-train-monitor'));
         }
         $stops = [];
         foreach ($xml->s as $s) {

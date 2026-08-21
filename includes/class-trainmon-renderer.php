@@ -53,6 +53,7 @@ class TrainMon_Renderer {
             <div class="trainmon-current">
                 <?php foreach ($directions as $dir):
                     $conn = TrainMon_Storage::get_next_connection($eva, $line, (string) $dir['key']);
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is assembled and escaped inside connection_card().
                     echo self::connection_card((string) $dir['label'], $conn);
                 endforeach; ?>
             </div>
@@ -64,11 +65,16 @@ class TrainMon_Renderer {
                     ?></h3>
                     <span><?php echo esc_html($active_label); ?></span>
                 </div>
-                <?php echo self::filter_form($eva, $line, $sel_year, $sel_month); ?>
-                <?php echo self::stats_block(__('Overall', 'german-regional-train-monitor'), $stats_all); ?>
+                <?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is assembled and escaped inside filter_form().
+                echo self::filter_form($eva, $line, $sel_year, $sel_month);
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is assembled and escaped inside stats_block().
+                echo self::stats_block(__('Overall', 'german-regional-train-monitor'), $stats_all);
+                ?>
                 <div class="trainmon-direction-stats">
                     <?php foreach ($directions as $dir):
                         $stats_dir = TrainMon_Stats::get_stats($eva, $line, $period, (string) $dir['key'], $sel_year, $sel_month);
+                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is assembled and escaped inside stats_block().
                         echo self::stats_block((string) $dir['label'], $stats_dir, true);
                     endforeach; ?>
                 </div>

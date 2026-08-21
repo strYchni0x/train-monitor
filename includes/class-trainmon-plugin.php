@@ -173,9 +173,6 @@ class TrainMon_Plugin {
         } catch (Throwable $e) {
             update_option(self::OPTION_LAST_STATUS, 'error');
             update_option(self::OPTION_LAST_ERROR, $e->getMessage());
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('German Regional Train Monitor: ' . $e->getMessage());
-            }
         }
         return $imported;
     }

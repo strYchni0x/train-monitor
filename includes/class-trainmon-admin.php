@@ -60,7 +60,7 @@ class TrainMon_Admin {
     public static function ajax_scan_lines(): void {
         check_ajax_referer('trainmon_admin', 'nonce');
         if (!current_user_can('manage_options')) { wp_send_json_error(['message' => __('You are not allowed to do this.', 'german-regional-train-monitor')]); }
-        $eva = isset($_POST['eva']) ? preg_replace('/[^0-9]/', '', (string) $_POST['eva']) : '';
+        $eva = isset($_POST['eva']) ? preg_replace('/[^0-9]/', '', sanitize_text_field(wp_unslash($_POST['eva']))) : '';
         if ($eva === '') { wp_send_json_error(['message' => __('No station selected.', 'german-regional-train-monitor')]); }
         try {
             $api = new TrainMon_API();
@@ -77,7 +77,7 @@ class TrainMon_Admin {
         if (!current_user_can('manage_options')) { wp_die(esc_html__('You are not allowed to do this.', 'german-regional-train-monitor')); }
         check_admin_referer('trainmon_save_selection');
 
-        $eva = isset($_POST['station_eva']) ? preg_replace('/[^0-9]/', '', (string) $_POST['station_eva']) : '';
+        $eva = isset($_POST['station_eva']) ? preg_replace('/[^0-9]/', '', sanitize_text_field(wp_unslash($_POST['station_eva']))) : '';
         $station_name = isset($_POST['station_name']) ? sanitize_text_field(wp_unslash($_POST['station_name'])) : '';
         $line = isset($_POST['line']) ? strtoupper(sanitize_text_field(wp_unslash($_POST['line']))) : '';
 
@@ -132,9 +132,11 @@ class TrainMon_Admin {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('German Regional Train Monitor', 'german-regional-train-monitor'); ?></h1>
+            <?php // phpcs:disable WordPress.Security.NonceVerification.Recommended -- read-only admin notices after our own nonce-checked redirects; no data processed. ?>
             <?php if (isset($_GET['updated'])): ?><div class="notice notice-success"><p><?php esc_html_e('Manual fetch completed.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
             <?php if (isset($_GET['saved'])): ?><div class="notice notice-success"><p><?php esc_html_e('Selection saved. Please click "Fetch now" once.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
             <?php if (isset($_GET['error'])): ?><div class="notice notice-error"><p><?php esc_html_e('Selection incomplete – please choose a station and a line.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
+            <?php // phpcs:enable WordPress.Security.NonceVerification.Recommended ?>
 
             <h2><?php esc_html_e('Monitored connection', 'german-regional-train-monitor'); ?></h2>
             <?php if (!$configured): ?>

@@ -8,7 +8,7 @@ Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Show the next regional train departures at a station you choose and record punctuality statistics per direction, using the Deutsche Bahn Timetables API.
+Next regional train departures at a chosen station, plus punctuality statistics per direction, via the Deutsche Bahn Timetables API.
 
 == Description ==
 
