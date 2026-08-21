@@ -15,6 +15,7 @@ class TrainMon_Plugin {
     public const OPTION_LAST_IMPORTED = 're9d_last_imported';
     public const OPTION_SETTINGS = 're9d_settings';
     public const OPTION_DB_VERSION = 're9d_db_version';
+    public const OPTION_CREDENTIALS = 're9d_api_credentials';
     public const PUNCTUAL_THRESHOLD_MINUTES = 4;
 
     // Long-distance categories; everything else counts as a regional train (RE, RB, S, IRE, RS, ...).
@@ -31,6 +32,7 @@ class TrainMon_Plugin {
         add_action('admin_enqueue_scripts', ['TrainMon_Admin', 'enqueue_admin']);
         add_action('admin_post_trainmon_manual_fetch', ['TrainMon_Admin', 'handle_manual_fetch']);
         add_action('admin_post_trainmon_save_selection', ['TrainMon_Admin', 'handle_save_selection']);
+        add_action('admin_post_trainmon_save_credentials', ['TrainMon_Admin', 'handle_save_credentials']);
         add_action('wp_ajax_trainmon_search_stations', ['TrainMon_Admin', 'ajax_search_stations']);
         add_action('wp_ajax_trainmon_scan_lines', ['TrainMon_Admin', 'ajax_scan_lines']);
         add_action('plugins_loaded', [self::class, 'maybe_upgrade']);
@@ -40,6 +42,31 @@ class TrainMon_Plugin {
 
     public static function load_textdomain(): void {
         load_plugin_textdomain('german-regional-train-monitor', false, dirname(plugin_basename(TRAINMON_FILE)) . '/languages');
+    }
+
+    /**
+     * DB Timetables API credentials. Constants in wp-config.php take precedence
+     * over the values entered on the settings page.
+     * @return array{client_id:string,api_key:string}
+     */
+    public static function get_credentials(): array {
+        $stored = get_option(self::OPTION_CREDENTIALS, []);
+        if (!is_array($stored)) { $stored = []; }
+        $client_id = (defined('DB_TIMETABLES_CLIENT_ID') && DB_TIMETABLES_CLIENT_ID) ? DB_TIMETABLES_CLIENT_ID : ($stored['client_id'] ?? '');
+        $api_key   = (defined('DB_TIMETABLES_API_KEY') && DB_TIMETABLES_API_KEY) ? DB_TIMETABLES_API_KEY : ($stored['api_key'] ?? '');
+        return ['client_id' => (string) $client_id, 'api_key' => (string) $api_key];
+    }
+
+    /** True if credentials come from wp-config.php constants (they then win over the option). */
+    public static function credentials_from_constants(): bool {
+        return (defined('DB_TIMETABLES_CLIENT_ID') && DB_TIMETABLES_CLIENT_ID)
+            || (defined('DB_TIMETABLES_API_KEY') && DB_TIMETABLES_API_KEY);
+    }
+
+    /** Both credential parts are available (from constants or the stored option). */
+    public static function has_credentials(): bool {
+        $c = self::get_credentials();
+        return $c['client_id'] !== '' && $c['api_key'] !== '';
     }
 
     public static function activate(): void {

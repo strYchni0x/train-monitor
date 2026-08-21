@@ -75,13 +75,7 @@ DE = {
     "Embedding": "Einbindung",
     "Default:": "Standard:",
     "With period filter:": "Mit Zeitraumfilter:",
-    "Configuration": "Konfiguration",
-    "The DB API credentials must be defined in %s:": "Die DB-Zugangsdaten müssen in %s stehen:",
-    "Recommendation: for reliable statistics, set up a real server cron that calls WordPress cron regularly.":
-        "Empfehlung: Für eine zuverlässige Statistik einen echten Server-Cron einrichten, der WordPress-Cron regelmäßig aufruft.",
     "Could not read the station list from the DB API.": "Stationsliste der DB-API konnte nicht gelesen werden.",
-    "The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php.":
-        "DB-Timetables-API-Zugangsdaten fehlen. Bitte DB_TIMETABLES_CLIENT_ID und DB_TIMETABLES_API_KEY in wp-config.php setzen.",
     "API error: %s": "API-Fehler: %s",
     "API HTTP status: %d": "API-HTTP-Status: %d",
     "Could not read the XML from the DB API.": "XML der DB-API konnte nicht gelesen werden.",
@@ -114,6 +108,22 @@ DE = {
     "Year": "Jahr",
     "Month": "Monat",
     "Show": "Anzeigen",
+    "API credentials saved.": "API-Zugangsdaten gespeichert.",
+    "Get free credentials for the \"Timetables\" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here.":
+        "Hol dir kostenlose Zugangsdaten für die „Timetables“-API im DB API Marketplace (developers.deutschebahn.com) und trage sie hier ein.",
+    "Credentials are defined in wp-config.php and take precedence over the fields below.":
+        "Die Zugangsdaten sind in der wp-config.php definiert und haben Vorrang vor den Feldern unten.",
+    "DB Client ID": "DB-Client-ID",
+    "DB API key": "DB-API-Schlüssel",
+    "A key is stored. Leave the field empty to keep it.": "Ein Schlüssel ist gespeichert. Feld leer lassen, um ihn zu behalten.",
+    "Save credentials": "Zugangsdaten speichern",
+    "Advanced: instead of the fields above you can define the credentials in wp-config.php (these then take precedence):":
+        "Fortgeschritten: Statt der Felder oben kannst du die Zugangsdaten in der wp-config.php definieren (diese haben dann Vorrang):",
+    "Automatic updates (cron)": "Automatische Aktualisierung (Cron)",
+    "For reliable statistics, set up a cron job that calls WordPress cron every five minutes. A free option is <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">cron-job.org</a>. Point it to this URL:":
+        "Für eine zuverlässige Statistik richte einen Cronjob ein, der den WordPress-Cron alle fünf Minuten aufruft. Eine kostenlose Möglichkeit ist <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">cron-job.org</a>. Verweise ihn auf diese URL:",
+    "The DB Timetables API credentials are missing. Enter them under Settings → Train Monitor, or define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php.":
+        "Die DB-Timetables-API-Zugangsdaten fehlen. Trage sie unter Einstellungen → Train Monitor ein oder definiere DB_TIMETABLES_CLIENT_ID und DB_TIMETABLES_API_KEY in der wp-config.php.",
 }
 
 FUNCS = r"(?:__|_e|esc_html__|esc_html_e|esc_attr__|esc_attr_e)"

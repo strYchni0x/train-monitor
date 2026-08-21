@@ -58,7 +58,8 @@ plugin cannot work without it.
   station or scan lines in the admin area, the text you type is also sent.
 * **What is not sent:** no data about your site's visitors is transmitted.
 * **Credentials:** you must obtain your own free API credentials from the DB API
-  Marketplace and add them to `wp-config.php`. By doing so you accept DB's terms.
+  Marketplace and enter them in the plugin settings (or in `wp-config.php`). By
+  doing so you accept DB's terms.
 
 Deutsche Bahn API Marketplace: https://developers.deutschebahn.com/
 DB terms of use: https://developers.deutschebahn.com/db-api-marketplace/apis/
@@ -70,14 +71,20 @@ DB privacy information: https://www.deutschebahn.com/de/konzern/datenschutz
 
 1. Upload and activate the plugin.
 2. Obtain free credentials for the "Timetables" API at the DB API Marketplace
-   (https://developers.deutschebahn.com/) and add them to `wp-config.php`:
+   (https://developers.deutschebahn.com/) and enter them under
+   Settings → Train Monitor → API credentials. Advanced users can instead define
+   them in `wp-config.php` (these then take precedence):
 
    `define('DB_TIMETABLES_CLIENT_ID', 'YOUR_CLIENT_ID');`
    `define('DB_TIMETABLES_API_KEY', 'YOUR_API_KEY');`
 
-3. Go to Settings → Train Monitor, search a station, choose a line, save, then
-   click "Fetch now".
+3. On the same settings page, search a station, choose a line, save, then click
+   "Fetch now".
 4. Add the shortcode `[train_monitor]` to a page or post.
+
+For reliable data collection, also set up a cron job (e.g. the free service
+cron-job.org) that calls your site's `wp-cron.php?doing_wp_cron` every five
+minutes; the settings page shows the exact URL.
 
 Note: set the WordPress timezone (Settings → General) to your local German time
 (e.g. Berlin); the API returns local times.
@@ -90,7 +97,8 @@ similar. Long-distance trains (ICE, IC, EC, ...) are excluded.
 
 = Do I need API credentials? =
 Yes. They are free from the DB API Marketplace. Subscribe to the "Timetables"
-API and put the client id and API key into `wp-config.php`.
+API and enter the client id and API key under Settings → Train Monitor (or, for
+advanced setups, in `wp-config.php`).
 
 = Why are there no statistics yet? =
 Statistics build up over time as the plugin records departures every five

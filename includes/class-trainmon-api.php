@@ -140,14 +140,15 @@ class TrainMon_API {
 
     /** Authentifizierter GET gegen die DB API; liefert den Response-Body. */
     private function http_get(string $url): string {
-        if (!defined('DB_TIMETABLES_CLIENT_ID') || !defined('DB_TIMETABLES_API_KEY')) {
-            throw new RuntimeException(esc_html__('The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php.', 'german-regional-train-monitor'));
+        $creds = TrainMon_Plugin::get_credentials();
+        if ($creds['client_id'] === '' || $creds['api_key'] === '') {
+            throw new RuntimeException(esc_html__('The DB Timetables API credentials are missing. Enter them under Settings → Train Monitor, or define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php.', 'german-regional-train-monitor'));
         }
         $response = wp_remote_get($url, [
             'timeout' => 30,
             'headers' => [
-                'DB-Client-Id' => DB_TIMETABLES_CLIENT_ID,
-                'DB-Api-Key' => DB_TIMETABLES_API_KEY,
+                'DB-Client-Id' => $creds['client_id'],
+                'DB-Api-Key' => $creds['api_key'],
                 'accept' => 'application/xml',
             ],
         ]);

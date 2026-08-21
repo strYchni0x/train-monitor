@@ -71,6 +71,9 @@ msgstr ""
 msgid "Selection incomplete – please choose a station and a line."
 msgstr ""
 
+msgid "API credentials saved."
+msgstr ""
+
 msgid "Monitored connection"
 msgstr ""
 
@@ -182,19 +185,37 @@ msgstr ""
 msgid "With period filter:"
 msgstr ""
 
-msgid "Configuration"
+msgid "Get free credentials for the \"Timetables\" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here."
 msgstr ""
 
-msgid "The DB API credentials must be defined in %s:"
+msgid "Credentials are defined in wp-config.php and take precedence over the fields below."
 msgstr ""
 
-msgid "Recommendation: for reliable statistics, set up a real server cron that calls WordPress cron regularly."
+msgid "DB Client ID"
+msgstr ""
+
+msgid "DB API key"
+msgstr ""
+
+msgid "A key is stored. Leave the field empty to keep it."
+msgstr ""
+
+msgid "Save credentials"
+msgstr ""
+
+msgid "Advanced: instead of the fields above you can define the credentials in wp-config.php (these then take precedence):"
+msgstr ""
+
+msgid "Automatic updates (cron)"
+msgstr ""
+
+msgid "For reliable statistics, set up a cron job that calls WordPress cron every five minutes. A free option is <a href=\"%s\" target=\"_blank\" rel=\"noopener noreferrer\">cron-job.org</a>. Point it to this URL:"
 msgstr ""
 
 msgid "Could not read the station list from the DB API."
 msgstr ""
 
-msgid "The DB Timetables API credentials are missing. Please define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php."
+msgid "The DB Timetables API credentials are missing. Enter them under Settings → Train Monitor, or define DB_TIMETABLES_CLIENT_ID and DB_TIMETABLES_API_KEY in wp-config.php."
 msgstr ""
 
 msgid "API error: %s"

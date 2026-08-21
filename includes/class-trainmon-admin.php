@@ -110,6 +110,30 @@ class TrainMon_Admin {
         exit;
     }
 
+    /** Save the DB API credentials entered on the settings page. */
+    public static function handle_save_credentials(): void {
+        if (!current_user_can('manage_options')) { wp_die(esc_html__('You are not allowed to do this.', 'german-regional-train-monitor')); }
+        check_admin_referer('trainmon_save_credentials');
+
+        $stored = get_option(TrainMon_Plugin::OPTION_CREDENTIALS, []);
+        if (!is_array($stored)) { $stored = []; }
+
+        $client_id = isset($_POST['client_id']) ? sanitize_text_field(wp_unslash($_POST['client_id'])) : '';
+        // The API key field is write-only: an empty submission keeps the stored key.
+        $api_key = isset($_POST['api_key']) ? sanitize_text_field(wp_unslash($_POST['api_key'])) : '';
+        if ($api_key === '') {
+            $api_key = (string) ($stored['api_key'] ?? '');
+        }
+
+        update_option(TrainMon_Plugin::OPTION_CREDENTIALS, [
+            'client_id' => $client_id,
+            'api_key'   => $api_key,
+        ]);
+        delete_transient('re9d_recent_fetch');
+        wp_safe_redirect(admin_url('options-general.php?page=trainmon-monitor&creds=1'));
+        exit;
+    }
+
     public static function render_page(): void {
         if (!current_user_can('manage_options')) { return; }
         $settings = TrainMon_Plugin::get_settings();
@@ -136,6 +160,7 @@ class TrainMon_Admin {
             <?php if (isset($_GET['updated'])): ?><div class="notice notice-success"><p><?php esc_html_e('Manual fetch completed.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
             <?php if (isset($_GET['saved'])): ?><div class="notice notice-success"><p><?php esc_html_e('Selection saved. Please click "Fetch now" once.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
             <?php if (isset($_GET['error'])): ?><div class="notice notice-error"><p><?php esc_html_e('Selection incomplete – please choose a station and a line.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
+            <?php if (isset($_GET['creds'])): ?><div class="notice notice-success"><p><?php esc_html_e('API credentials saved.', 'german-regional-train-monitor'); ?></p></div><?php endif; ?>
             <?php // phpcs:enable WordPress.Security.NonceVerification.Recommended ?>
 
             <h2><?php esc_html_e('Monitored connection', 'german-regional-train-monitor'); ?></h2>
@@ -227,22 +252,56 @@ class TrainMon_Admin {
             <code>[train_monitor period="90"]</code><br>
             <code>[train_monitor period="all"]</code>
 
-            <h2><?php esc_html_e('Configuration', 'german-regional-train-monitor'); ?></h2>
-            <p><?php
-                printf(
-                    /* translators: %s: wp-config.php file name */
-                    esc_html__('The DB API credentials must be defined in %s:', 'german-regional-train-monitor'),
-                    '<code>wp-config.php</code>'
-                );
-            ?></p>
+            <h2><?php esc_html_e('API credentials', 'german-regional-train-monitor'); ?></h2>
+            <?php
+            $stored_creds = get_option(TrainMon_Plugin::OPTION_CREDENTIALS, []);
+            if (!is_array($stored_creds)) { $stored_creds = []; }
+            $stored_client_id = (string) ($stored_creds['client_id'] ?? '');
+            $has_stored_key = !empty($stored_creds['api_key']);
+            ?>
+            <p class="description"><?php esc_html_e('Get free credentials for the "Timetables" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here.', 'german-regional-train-monitor'); ?></p>
+            <?php if (TrainMon_Plugin::credentials_from_constants()): ?>
+                <p><strong><?php esc_html_e('Credentials are defined in wp-config.php and take precedence over the fields below.', 'german-regional-train-monitor'); ?></strong></p>
+            <?php endif; ?>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                <?php wp_nonce_field('trainmon_save_credentials'); ?>
+                <input type="hidden" name="action" value="trainmon_save_credentials">
+                <table class="form-table" role="presentation" style="max-width:900px">
+                    <tr>
+                        <th scope="row"><label for="trainmon-client-id"><?php esc_html_e('DB Client ID', 'german-regional-train-monitor'); ?></label></th>
+                        <td><input type="text" name="client_id" id="trainmon-client-id" class="regular-text" autocomplete="off" value="<?php echo esc_attr($stored_client_id); ?>"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="trainmon-api-key"><?php esc_html_e('DB API key', 'german-regional-train-monitor'); ?></label></th>
+                        <td>
+                            <input type="password" name="api_key" id="trainmon-api-key" class="regular-text" autocomplete="new-password" value="">
+                            <?php if ($has_stored_key): ?><p class="description"><?php esc_html_e('A key is stored. Leave the field empty to keep it.', 'german-regional-train-monitor'); ?></p><?php endif; ?>
+                        </td>
+                    </tr>
+                </table>
+                <?php submit_button(__('Save credentials', 'german-regional-train-monitor'), 'primary', 'submit', false); ?>
+            </form>
+            <p class="description"><?php esc_html_e('Advanced: instead of the fields above you can define the credentials in wp-config.php (these then take precedence):', 'german-regional-train-monitor'); ?></p>
             <pre>define('DB_TIMETABLES_CLIENT_ID', 'YOUR_CLIENT_ID');
 define('DB_TIMETABLES_API_KEY', 'YOUR_API_KEY');</pre>
-            <p><?php esc_html_e('Recommendation: for reliable statistics, set up a real server cron that calls WordPress cron regularly.', 'german-regional-train-monitor'); ?></p>
+
+            <h2><?php esc_html_e('Automatic updates (cron)', 'german-regional-train-monitor'); ?></h2>
+            <p><?php
+                printf(
+                    wp_kses(
+                        /* translators: %s: URL of the cron-job.org website */
+                        __('For reliable statistics, set up a cron job that calls WordPress cron every five minutes. A free option is <a href="%s" target="_blank" rel="noopener noreferrer">cron-job.org</a>. Point it to this URL:', 'german-regional-train-monitor'),
+                        ['a' => ['href' => [], 'target' => [], 'rel' => []]]
+                    ),
+                    esc_url('https://cron-job.org')
+                );
+            ?></p>
+            <pre><?php echo esc_html(site_url('wp-cron.php') . '?doing_wp_cron'); ?></pre>
         </div>
         <?php
     }
 
     private static function credentials_ok(): bool {
-        return defined('DB_TIMETABLES_CLIENT_ID') && defined('DB_TIMETABLES_API_KEY') && DB_TIMETABLES_CLIENT_ID && DB_TIMETABLES_API_KEY;
+        return TrainMon_Plugin::has_credentials();
     }
 }
