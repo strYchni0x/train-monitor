@@ -1,11 +1,11 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: German Regional Train Monitor 1.0.0\n"
+"Project-Id-Version: German Regional Train Monitor 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/german-regional-train-monitor\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-18 12:00+0200\n"
+"POT-Creation-Date: 2026-10-22 12:00+0200\n"
 "X-Domain: german-regional-train-monitor\n"
 
 msgid "German Regional Train Monitor"
@@ -185,6 +185,9 @@ msgstr ""
 msgid "With period filter:"
 msgstr ""
 
+msgid "With charts (average delay by departure hour and/or weekday):"
+msgstr ""
+
 msgid "Get free credentials for the \"Timetables\" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here."
 msgstr ""
 
@@ -288,6 +291,21 @@ msgid "cancellations"
 msgstr ""
 
 msgid "total trips"
+msgstr ""
+
+msgid "Average delay by weekday"
+msgstr ""
+
+msgid "Average delay by departure hour"
+msgstr ""
+
+msgid "Not enough data for this chart yet."
+msgstr ""
+
+msgid "%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled"
+msgstr ""
+
+msgid "Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips."
 msgstr ""
 
 msgid "All"

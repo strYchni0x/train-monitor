@@ -2,10 +2,14 @@
 if (!defined('ABSPATH')) { exit; }
 
 class TrainMon_Renderer {
+    /** Bars based on fewer trips are drawn faded (not yet meaningful). */
+    private const CHART_MIN_TRIPS = 5;
+
     public static function render_shortcode($atts): string {
         $atts = shortcode_atts([
             'period' => '30',
-            'refresh' => '120'
+            'refresh' => '120',
+            'charts' => ''
         ], $atts, 'train_monitor');
 
         if (!TrainMon_Plugin::is_configured()) {
@@ -78,6 +82,11 @@ class TrainMon_Renderer {
                         echo self::stats_block((string) $dir['label'], $stats_dir, true);
                     endforeach; ?>
                 </div>
+                <?php foreach (self::parse_charts((string) $atts['charts']) as $group):
+                    $dist = TrainMon_Stats::get_distribution($eva, $line, $group, $period, null, $sel_year, $sel_month);
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is assembled and escaped inside chart_block().
+                    echo self::chart_block($group, $dist);
+                endforeach; ?>
                 <p class="trainmon-small"><?php
                     /* translators: %d: punctuality threshold in minutes */
                     echo esc_html(sprintf(__('On time means: at most %d minutes delay. Cancellations are counted separately and are not included in the average delay.', 'german-regional-train-monitor'), TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES));
@@ -132,6 +141,78 @@ class TrainMon_Renderer {
                 <div class="trainmon-stat-box"><div class="trainmon-stat-value">' . esc_html((string) $stats['total']) . '</div><div class="trainmon-small">' . esc_html__('total trips', 'german-regional-train-monitor') . '</div></div>
             </div>
         </div>';
+    }
+
+    /** Shortcode value "hour,weekday" / "all" -> list of chart groups in that order. */
+    private static function parse_charts(string $value): array {
+        $parts = array_map('trim', explode(',', strtolower($value)));
+        if (in_array('all', $parts, true)) { return ['hour', 'weekday']; }
+        return array_values(array_unique(array_intersect($parts, ['hour', 'weekday'])));
+    }
+
+    /**
+     * Pure CSS bar chart of the average delay per departure hour or weekday.
+     * Bar colour follows the delay level, faded bars have too few trips.
+     */
+    private static function chart_block(string $group, array $dist): string {
+        $title = $group === 'weekday'
+            ? __('Average delay by weekday', 'german-regional-train-monitor')
+            : __('Average delay by departure hour', 'german-regional-train-monitor');
+        $html = '<div class="trainmon-stat-section trainmon-chart-section"><h4>' . esc_html($title) . '</h4>';
+        if (empty($dist)) {
+            return $html . '<p class="trainmon-small">' . esc_html__('Not enough data for this chart yet.', 'german-regional-train-monitor') . '</p></div>';
+        }
+
+        // Weekdays: always Mon-Sun. Hours: from the first to the last hour with trips.
+        $buckets = $group === 'weekday' ? range(0, 6) : range(min(array_keys($dist)), max(array_keys($dist)));
+        $max = max(1.0, max(array_column($dist, 'avg_delay')));
+        $threshold = TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES;
+
+        $cols = '';
+        foreach ($buckets as $b) {
+            if ($group === 'weekday') {
+                // WEEKDAY(): 0 = Monday; WP_Locale::get_weekday(): 0 = Sunday.
+                $label = $GLOBALS['wp_locale']->get_weekday_abbrev($GLOBALS['wp_locale']->get_weekday(($b + 1) % 7));
+                $long_label = $GLOBALS['wp_locale']->get_weekday(($b + 1) % 7);
+            } else {
+                $label = sprintf('%02d', $b);
+                $long_label = sprintf('%02d:00–%02d:59', $b, $b);
+            }
+            $d = $dist[$b] ?? null;
+            if (!$d) {
+                $cols .= '<div class="trainmon-chart-col trainmon-chart-empty" role="listitem" aria-label="' . esc_attr($long_label . ': –') . '">'
+                    . '<div class="trainmon-chart-plot"></div><div class="trainmon-chart-label">' . esc_html($label) . '</div></div>';
+                continue;
+            }
+            $avg = $d['avg_delay'];
+            $level = $avg <= $threshold ? 'ok' : ($avg <= 10 ? 'warn' : 'bad');
+            $sparse = $d['total'] < self::CHART_MIN_TRIPS ? ' trainmon-chart-sparse' : '';
+            $height = max(2, (int) round($avg / $max * 100));
+            $info = sprintf(
+                /* translators: 1: weekday or hour range, 2: average delay in minutes, 3: share of delayed trips in percent, 4: number of trips, 5: number of cancellations */
+                __('%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled', 'german-regional-train-monitor'),
+                $long_label,
+                TrainMon_Helpers::format_decimal($avg),
+                TrainMon_Helpers::format_decimal($d['delayed_percent']),
+                $d['total'],
+                $d['cancelled']
+            );
+            $cols .= '<div class="trainmon-chart-col' . esc_attr($sparse) . '" role="listitem" title="' . esc_attr($info) . '" aria-label="' . esc_attr($info) . '">'
+                . '<div class="trainmon-chart-plot">'
+                . '<span class="trainmon-chart-value">' . esc_html(TrainMon_Helpers::format_decimal($avg)) . '</span>'
+                . '<div class="trainmon-chart-bar trainmon-level-' . esc_attr($level) . '" style="height:' . esc_attr((string) $height) . '%"></div>'
+                . '</div>'
+                . '<div class="trainmon-chart-label">' . esc_html($label) . '</div>'
+                . '</div>';
+        }
+
+        return $html
+            . '<div class="trainmon-chart trainmon-chart-' . esc_attr($group) . '" role="list" style="--trainmon-cols:' . esc_attr((string) count($buckets)) . '">' . $cols . '</div>'
+            . '<p class="trainmon-small">' . esc_html(sprintf(
+                /* translators: %d: minimum number of trips per bar */
+                __('Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips.', 'german-regional-train-monitor'),
+                self::CHART_MIN_TRIPS
+            )) . '</p></div>';
     }
 
     /** Year + month picker (GET form) so visitors can inspect a specific month. */

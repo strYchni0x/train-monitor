@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: German Regional Train Monitor 1.0.0\n"
+"Project-Id-Version: German Regional Train Monitor 1.1.0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-07-18 12:00+0200\n"
+"PO-Revision-Date: 2026-10-22 12:00+0200\n"
 "Language: de_DE_formal\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: german-regional-train-monitor\n"
@@ -186,6 +186,9 @@ msgstr "Standard:"
 msgid "With period filter:"
 msgstr "Mit Zeitraumfilter:"
 
+msgid "With charts (average delay by departure hour and/or weekday):"
+msgstr "Mit Diagrammen (durchschnittliche Verspätung nach Abfahrtsstunde und/oder Wochentag):"
+
 msgid "Get free credentials for the \"Timetables\" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here."
 msgstr "Hol dir kostenlose Zugangsdaten für die „Timetables“-API im DB API Marketplace (developers.deutschebahn.com) und trage sie hier ein."
 
@@ -290,6 +293,21 @@ msgstr "Ausfälle"
 
 msgid "total trips"
 msgstr "Fahrten gesamt"
+
+msgid "Average delay by weekday"
+msgstr "Durchschnittliche Verspätung nach Wochentag"
+
+msgid "Average delay by departure hour"
+msgstr "Durchschnittliche Verspätung nach Abfahrtsstunde"
+
+msgid "Not enough data for this chart yet."
+msgstr "Für dieses Diagramm liegen noch nicht genug Daten vor."
+
+msgid "%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled"
+msgstr "%1$s: durchschnittlich %2$s Min Verspätung, %3$s %% verspätet, %4$d Fahrten, %5$d Ausfälle"
+
+msgid "Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips."
+msgstr "Balkenhöhe: durchschnittliche Verspätung in Minuten (ohne Ausfälle). Blasse Balken beruhen auf weniger als %d Fahrten."
 
 msgid "All"
 msgstr "Alle"

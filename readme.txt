@@ -4,7 +4,7 @@ Tags: train, railway, delay, punctuality, timetable
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,8 @@ over configurable periods.
   or the entire recorded period). Cancellations are counted separately.
 * Front-end year and month picker: inspect a specific month or a whole year to
   compare, for example, winter versus summer punctuality.
+* Optional bar charts (pure CSS, no external libraries): average delay by
+  departure hour and by weekday, to see when delays are most likely.
 * Data is collected every 5 minutes via WP-Cron.
 * Source language English, with a bundled German translation (de_DE).
 
@@ -43,6 +45,9 @@ over configurable periods.
 
 `[train_monitor]` — default (last 30 days).
 `[train_monitor period="7"]`, `period="90"`, `period="365"`, `period="all"`.
+`[train_monitor charts="hour,weekday"]` — adds charts of the average delay by
+departure hour and by weekday (`charts="hour"`, `charts="weekday"` or
+`charts="all"` also work). The charts follow the period and the year/month filter.
 
 == External services ==
 
@@ -115,6 +120,10 @@ months are recorded you can compare them directly.
 2. The admin page: pick a station and a regional line.
 
 == Changelog ==
+
+= 1.1.0 =
+* New: optional bar charts of the average delay by departure hour and by weekday
+  (shortcode attribute `charts`). Pure CSS, no external scripts.
 
 = 1.0.0 =
 * First public release.

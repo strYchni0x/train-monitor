@@ -89,6 +89,49 @@
     cursor: pointer;
 }
 .trainmon-btn:hover { background: #17603f; }
+.trainmon-chart {
+    display: grid;
+    grid-template-columns: repeat(var(--trainmon-cols, 7), minmax(0, 1fr));
+    gap: .3rem;
+    align-items: end;
+    margin-bottom: .5rem;
+}
+.trainmon-chart-col { display: flex; flex-direction: column; min-width: 0; }
+.trainmon-chart-plot {
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: stretch;
+    border-bottom: 1px solid #c9d0d9;
+}
+.trainmon-chart-value {
+    font-size: .75rem;
+    font-weight: 700;
+    text-align: center;
+    color: #3e4752;
+    white-space: nowrap;
+    margin-bottom: .15rem;
+}
+.trainmon-chart-bar { border-radius: 4px 4px 0 0; min-height: 2px; }
+.trainmon-level-ok { background: #2e7d32; }
+.trainmon-level-warn { background: #e09b00; }
+.trainmon-level-bad { background: #c62828; }
+.trainmon-chart-sparse .trainmon-chart-bar { opacity: .35; }
+.trainmon-chart-sparse .trainmon-chart-value { color: #9aa3ad; }
+.trainmon-chart-label {
+    font-size: .75rem;
+    text-align: center;
+    color: #5b6470;
+    margin-top: .25rem;
+    white-space: nowrap;
+    overflow: hidden;
+}
+@media (max-width: 720px) {
+    .trainmon-chart-hour { gap: 2px; }
+    .trainmon-chart-hour .trainmon-chart-value { display: none; }
+    .trainmon-chart-hour .trainmon-chart-label { font-size: .65rem; }
+}
 @media (max-width: 520px) {
     .trainmon-time { font-size: 1.55rem; }
     .trainmon-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -14,25 +14,7 @@ class TrainMon_Stats {
     public static function get_stats(string $eva, string $line, string $period = '30', ?string $direction = null, string $year = '', string $month = ''): array {
         global $wpdb;
         $table = TrainMon_Storage::table_name();
-
-        // Kalenderauswahl (Jahr/Monat) hat Vorrang vor dem Zeitraum-Filter.
-        [$range_sql, $range_args] = TrainMon_Helpers::range_to_sql($year, $month);
-        if ($range_sql === '') {
-            [$range_sql, $range_args] = TrainMon_Helpers::period_to_sql($period);
-        }
-
-        // Gemeinsame WHERE-Klausel fuer alle Teilabfragen. $where und $condition
-        // bestehen ausschliesslich aus festen Klauseln + Platzhaltern; alle Werte
-        // gehen ueber $args durch $wpdb->prepare(). Der Tabellenname stammt aus
-        // $wpdb->prefix (kann kein Platzhalter sein). Custom-Table -> kein Cache.
-        $where = " WHERE station_eva = %s AND train_line = %s ";
-        $args = [$eva, strtoupper($line)];
-        if ($direction !== null && $direction !== '') {
-            $where .= " AND direction = %s ";
-            $args[] = $direction;
-        }
-        $where .= $range_sql;
-        $args = array_merge($args, $range_args);
+        [$where, $args] = self::build_where($eva, $line, $period, $direction, $year, $month);
 
         // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $table $where", $args));
@@ -81,5 +63,77 @@ class TrainMon_Stats {
             'delay_21_plus' => $bucket('delay_minutes >= 21'),
             'cancelled' => $cancelled,
         ];
+    }
+
+    /**
+     * Verspaetungs-Verteilung nach Abfahrtsstunde oder Wochentag.
+     * Gleiche Filter wie get_stats(); zusaetzlich nur bereits abgefahrene
+     * Zuege, da kuenftige Fahrten noch 0 Minuten Verspaetung haben.
+     * @param string $group hour|weekday
+     * @return array<int, array{total:int, cancelled:int, delayed:int, avg_delay:float, delayed_percent:float}>
+     *         Schluessel: Stunde 0-23 bzw. Wochentag 0 (Mo) - 6 (So); nur Buckets mit Fahrten.
+     */
+    public static function get_distribution(string $eva, string $line, string $group, string $period = '30', ?string $direction = null, string $year = '', string $month = ''): array {
+        global $wpdb;
+        $table = TrainMon_Storage::table_name();
+        [$where, $where_args] = self::build_where($eva, $line, $period, $direction, $year, $month);
+        $where .= ' AND planned_time <= %s ';
+        // Reihenfolge der Platzhalter: Schwellwert (SELECT), dann WHERE-Werte.
+        $args = array_merge([TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES], $where_args, [current_time('mysql')]);
+        // Feste Ausdruecke, keine Nutzereingabe.
+        $bucket_sql = $group === 'weekday' ? 'WEEKDAY(planned_time)' : 'HOUR(planned_time)';
+
+        // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT $bucket_sql AS bucket,
+                COUNT(*) AS total,
+                SUM(is_cancelled) AS cancelled,
+                AVG(CASE WHEN is_cancelled = 0 THEN delay_minutes END) AS avg_delay,
+                SUM(CASE WHEN is_cancelled = 0 AND delay_minutes > %d THEN 1 ELSE 0 END) AS delayed_count
+            FROM $table $where
+            GROUP BY bucket
+            ORDER BY bucket",
+            $args
+        ), ARRAY_A);
+        // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
+
+        $result = [];
+        foreach ((array) $rows as $row) {
+            $total = (int) $row['total'];
+            $cancelled = (int) $row['cancelled'];
+            $running = $total - $cancelled;
+            $delayed = (int) $row['delayed_count'];
+            $result[(int) $row['bucket']] = [
+                'total' => $total,
+                'cancelled' => $cancelled,
+                'delayed' => $delayed,
+                'avg_delay' => (float) $row['avg_delay'],
+                'delayed_percent' => $running > 0 ? ($delayed / $running) * 100 : 0.0,
+            ];
+        }
+        return $result;
+    }
+
+    /**
+     * Gemeinsame WHERE-Klausel fuer alle Abfragen. Besteht ausschliesslich aus
+     * festen Klauseln + Platzhaltern; alle Werte gehen ueber die Argumentliste
+     * durch $wpdb->prepare(). Der Tabellenname stammt aus $wpdb->prefix (kann
+     * kein Platzhalter sein). Custom-Table -> kein Cache.
+     * @return array{0:string, 1:array}
+     */
+    private static function build_where(string $eva, string $line, string $period, ?string $direction, string $year, string $month): array {
+        // Kalenderauswahl (Jahr/Monat) hat Vorrang vor dem Zeitraum-Filter.
+        [$range_sql, $range_args] = TrainMon_Helpers::range_to_sql($year, $month);
+        if ($range_sql === '') {
+            [$range_sql, $range_args] = TrainMon_Helpers::period_to_sql($period);
+        }
+        $where = " WHERE station_eva = %s AND train_line = %s ";
+        $args = [$eva, strtoupper($line)];
+        if ($direction !== null && $direction !== '') {
+            $where .= " AND direction = %s ";
+            $args[] = $direction;
+        }
+        $where .= $range_sql;
+        return [$where, array_merge($args, $range_args)];
     }
 }
