@@ -23,6 +23,11 @@ the official [Deutsche Bahn Timetables API](https://developers.deutschebahn.com/
   year to compare e.g. winter vs summer punctuality.
 - Data collected every 5 minutes via WP-Cron.
 
+## Requirements
+
+- WordPress 6.0 or newer
+- PHP 7.4 or newer (tested up to PHP 8.4)
+
 ## Installation
 
 1. Install and activate the plugin.
