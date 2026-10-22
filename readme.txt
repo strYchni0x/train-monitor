@@ -124,6 +124,8 @@ months are recorded you can compare them directly.
 = 1.1.0 =
 * New: optional bar charts of the average delay by departure hour and by weekday
   (shortcode attribute `charts`). Pure CSS, no external scripts.
+* Fix: punctuality statistics no longer count departures that have not happened
+  yet (already fetched, still without delay) as on time.
 
 = 1.0.0 =
 * First public release.

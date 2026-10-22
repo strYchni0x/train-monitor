@@ -67,8 +67,7 @@ class TrainMon_Stats {
 
     /**
      * Verspaetungs-Verteilung nach Abfahrtsstunde oder Wochentag.
-     * Gleiche Filter wie get_stats(); zusaetzlich nur bereits abgefahrene
-     * Zuege, da kuenftige Fahrten noch 0 Minuten Verspaetung haben.
+     * Gleiche Filter wie get_stats().
      * @param string $group hour|weekday
      * @return array<int, array{total:int, cancelled:int, delayed:int, avg_delay:float, delayed_percent:float}>
      *         Schluessel: Stunde 0-23 bzw. Wochentag 0 (Mo) - 6 (So); nur Buckets mit Fahrten.
@@ -77,9 +76,8 @@ class TrainMon_Stats {
         global $wpdb;
         $table = TrainMon_Storage::table_name();
         [$where, $where_args] = self::build_where($eva, $line, $period, $direction, $year, $month);
-        $where .= ' AND planned_time <= %s ';
         // Reihenfolge der Platzhalter: Schwellwert (SELECT), dann WHERE-Werte.
-        $args = array_merge([TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES], $where_args, [current_time('mysql')]);
+        $args = array_merge([TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES], $where_args);
         // Feste Ausdruecke, keine Nutzereingabe.
         $bucket_sql = $group === 'weekday' ? 'WEEKDAY(planned_time)' : 'HOUR(planned_time)';
 
@@ -134,6 +132,9 @@ class TrainMon_Stats {
             $args[] = $direction;
         }
         $where .= $range_sql;
-        return [$where, array_merge($args, $range_args)];
+        // Nur bereits abgefahrene Zuege: kuenftige Fahrten sind schon gespeichert,
+        // haben aber noch 0 Minuten Verspaetung und wuerden als puenktlich zaehlen.
+        $where .= " AND planned_time <= %s ";
+        return [$where, array_merge($args, $range_args, [current_time('mysql')])];
     }
 }
