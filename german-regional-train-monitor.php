@@ -3,7 +3,7 @@
  * Plugin Name:       German Regional Train Monitor
  * Plugin URI:        https://github.com/strYchni0x/train-monitor
  * Description:       Shows the next regional train departures at a station you choose and records punctuality statistics per direction, using the Deutsche Bahn Timetables API.
- * Version:           1.2.0
+ * Version:           1.3.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Florian Willnat
@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('TRAINMON_VERSION', '1.2.0');
+define('TRAINMON_VERSION', '1.3.0');
 define('TRAINMON_FILE', __FILE__);
 define('TRAINMON_DIR', plugin_dir_path(__FILE__));
 define('TRAINMON_URL', plugin_dir_url(__FILE__));

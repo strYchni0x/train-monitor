@@ -145,10 +145,43 @@
     white-space: nowrap;
     overflow: hidden;
 }
+.trainmon-chart-rate {
+    font-size: .72rem;
+    font-weight: 700;
+    text-align: center;
+    color: #9aa3ad;
+    margin-top: .1rem;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.trainmon-rate-ok { color: #2e7d32; }
+.trainmon-rate-warn { color: #a86f00; }
+.trainmon-rate-bad { color: #c62828; }
+.trainmon-chart-sparse .trainmon-chart-rate { opacity: .5; }
+.trainmon-chart-rate-caption { font-size: .72rem; color: #5b6470; margin-bottom: .6rem; }
+.trainmon-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem 1rem;
+    font-size: .8rem;
+    color: #3e4752;
+    margin-bottom: .35rem;
+}
+.trainmon-chart-legend i {
+    display: inline-block;
+    width: .8rem;
+    height: .8rem;
+    border-radius: 3px;
+    margin-right: .35rem;
+    vertical-align: -1px;
+}
 @media (max-width: 720px) {
     .trainmon-chart-hour { gap: 2px; }
     .trainmon-chart-hour .trainmon-chart-value { display: none; }
-    .trainmon-chart-hour .trainmon-chart-label { font-size: .65rem; }
+    .trainmon-chart-hour .trainmon-chart-label,
+    .trainmon-chart-hour .trainmon-chart-rate { font-size: .6rem; letter-spacing: -.02em; }
+    /* "100" is a little wider than a narrow column: let it overhang instead of clipping. */
+    .trainmon-chart-hour .trainmon-chart-rate { overflow: visible; letter-spacing: -.05em; }
 }
 @media (max-width: 520px) {
     .trainmon-time { font-size: 1.55rem; }

@@ -69,7 +69,7 @@ class TrainMon_Stats {
      * Verspaetung je Abfahrtsstunde, einmal ueber alle Tage und je Wochentag.
      * Gleiche Filter wie get_stats(). Eine Abfrage (Wochentag x Stunde), die
      * Summen fuer "alle Tage" werden hier gebildet.
-     * @return array<string|int, array<int, array{total:int, cancelled:int, delayed:int, avg_delay:float, delayed_percent:float}>>
+     * @return array<string|int, array<int, array{total:int, cancelled:int, delayed:int, avg_delay:float, punctual_percent:float}>>
      *         Schluessel: 'all' und Wochentag 0 (Mo) - 6 (So), darin Stunde 0-23; nur Stunden mit Fahrten.
      */
     public static function get_hourly_by_weekday(string $eva, string $line, string $period = '30', ?string $direction = null, string $year = '', string $month = ''): array {
@@ -116,7 +116,8 @@ class TrainMon_Stats {
                     'cancelled' => $s['cancelled'],
                     'delayed' => $s['delayed'],
                     'avg_delay' => $running > 0 ? $s['delay_sum'] / $running : 0.0,
-                    'delayed_percent' => $running > 0 ? ($s['delayed'] / $running) * 100 : 0.0,
+                    // Wie in get_stats(): Ausfaelle zaehlen als nicht puenktlich.
+                    'punctual_percent' => $s['total'] > 0 ? (($running - $s['delayed']) / $s['total']) * 100 : 0.0,
                 ];
             }
         }

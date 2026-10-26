@@ -4,7 +4,7 @@ Tags: train, railway, delay, punctuality, timetable
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,9 +37,9 @@ over configurable periods.
 * Front-end year and month picker: inspect a specific month or a whole year to
   compare, for example, winter versus summer punctuality. Choosing only a month
   shows that month across all recorded years.
-* Optional bar chart (pure CSS, no external libraries): average delay by
-  departure hour, for all days or a selected weekday, to see when delays are
-  most likely.
+* Optional bar chart (pure CSS, no external libraries): average delay and share
+  of on-time trips by departure hour, for all days or a selected weekday, to see
+  when delays are most likely.
 * Data is collected every 5 minutes via WP-Cron.
 * Source language English, with a bundled German translation (de_DE).
 
@@ -47,8 +47,8 @@ over configurable periods.
 
 `[train_monitor]` — default (last 30 days).
 `[train_monitor period="7"]`, `period="90"`, `period="365"`, `period="all"`.
-`[train_monitor charts="hour"]` — adds a chart of the average delay by departure
-hour with a weekday picker. The chart follows the period and the year/month
+`[train_monitor charts="hour"]` — adds a chart of the average delay and the share
+of on-time trips by departure hour, with a weekday picker. The chart follows the period and the year/month
 filter. Values from 1.1.0 (`hour,weekday`, `weekday`, `all`) keep working.
 
 == External services ==
@@ -122,6 +122,12 @@ months are recorded you can compare them directly.
 2. The admin page: pick a station and a regional line.
 
 == Changelog ==
+
+= 1.3.0 =
+* New: the hourly chart now also shows punctuality. Bar height is still the
+  average delay; bar colour and a row of percentages below the hours show the
+  share of on-time trips per hour (green from 90 %, yellow from 75 %, red below;
+  cancellations count as not on time, as in the statistics tiles).
 
 = 1.2.0 =
 * Changed: one chart instead of two. The average delay by departure hour now has

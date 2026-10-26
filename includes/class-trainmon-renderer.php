@@ -4,6 +4,9 @@ if (!defined('ABSPATH')) { exit; }
 class TrainMon_Renderer {
     /** Bars based on fewer trips are drawn faded (not yet meaningful). */
     private const CHART_MIN_TRIPS = 5;
+    /** Share of on-time trips (percent) for a green / yellow bar; below is red. */
+    private const RATE_GOOD = 90;
+    private const RATE_FAIR = 75;
 
     public static function render_shortcode($atts): string {
         $atts = shortcode_atts([
@@ -157,11 +160,12 @@ class TrainMon_Renderer {
      * Pure CSS bar chart of the average delay per departure hour, with a
      * weekday picker. All variants are rendered; assets/chart.js shows the
      * picker and switches between them (without JS: "all days" only).
-     * Bar colour follows the delay level, faded bars have too few trips.
+     * Bar height = average delay, bar colour and the row below = share of
+     * on-time trips; faded bars have too few trips.
      */
     private static function chart_block(array $variants): string {
         $html = '<div class="trainmon-stat-section trainmon-chart-section"><div class="trainmon-chart-head"><h4>'
-            . esc_html__('Average delay by departure hour', 'german-regional-train-monitor') . '</h4>';
+            . esc_html__('Delay and punctuality by departure hour', 'german-regional-train-monitor') . '</h4>';
         if (empty($variants['all'])) {
             return $html . '</div><p class="trainmon-small">' . esc_html__('Not enough data for this chart yet.', 'german-regional-train-monitor') . '</p></div>';
         }
@@ -201,9 +205,21 @@ class TrainMon_Renderer {
             $html .= '</div>';
         }
 
-        return $html . '<p class="trainmon-small">' . esc_html(sprintf(
+        $legend = '<div class="trainmon-chart-legend">'
+            . '<span><i class="trainmon-level-ok"></i>' . esc_html(sprintf(
+                /* translators: %d: percentage */
+                __('from %d %% on time', 'german-regional-train-monitor'), self::RATE_GOOD)) . '</span>'
+            . '<span><i class="trainmon-level-warn"></i>' . esc_html(sprintf(
+                /* translators: 1: lower percentage, 2: upper percentage */
+                __('%1$d–%2$d %% on time', 'german-regional-train-monitor'), self::RATE_FAIR, self::RATE_GOOD - 1)) . '</span>'
+            . '<span><i class="trainmon-level-bad"></i>' . esc_html(sprintf(
+                /* translators: %d: percentage */
+                __('below %d %% on time', 'german-regional-train-monitor'), self::RATE_FAIR)) . '</span>'
+            . '</div>';
+
+        return $html . $legend . '<p class="trainmon-small">' . esc_html(sprintf(
                 /* translators: %d: minimum number of trips per bar */
-                __('Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips.', 'german-regional-train-monitor'),
+                __('Bar height: average delay in minutes (cancellations excluded). Bar colour and the row below: share of trips on time (cancellations count as not on time). Faded bars are based on fewer than %d trips.', 'german-regional-train-monitor'),
                 self::CHART_MIN_TRIPS
             )) . '</p></div>';
     }
@@ -218,19 +234,22 @@ class TrainMon_Renderer {
             $d = $dist[$h] ?? null;
             if (!$d) {
                 $cols .= '<div class="trainmon-chart-col trainmon-chart-empty" role="listitem" aria-label="' . esc_attr($long_label . ': –') . '">'
-                    . '<div class="trainmon-chart-plot"></div><div class="trainmon-chart-label">' . esc_html($label) . '</div></div>';
+                    . '<div class="trainmon-chart-plot"></div><div class="trainmon-chart-label">' . esc_html($label) . '</div>'
+                    . '<div class="trainmon-chart-rate">–</div></div>';
                 continue;
             }
             $avg = $d['avg_delay'];
-            $level = $avg <= $threshold ? 'ok' : ($avg <= 10 ? 'warn' : 'bad');
+            $rate = $d['punctual_percent'];
+            // Height = average delay, colour = share of on-time trips.
+            $level = $rate >= self::RATE_GOOD ? 'ok' : ($rate >= self::RATE_FAIR ? 'warn' : 'bad');
             $sparse = $d['total'] < self::CHART_MIN_TRIPS ? ' trainmon-chart-sparse' : '';
             $height = min(100, max(2, (int) round($avg / $max * 100)));
             $info = sprintf(
-                /* translators: 1: hour range, 2: average delay in minutes, 3: share of delayed trips in percent, 4: number of trips, 5: number of cancellations */
-                __('%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled', 'german-regional-train-monitor'),
+                /* translators: 1: hour range, 2: share of on-time trips in percent, 3: average delay in minutes, 4: number of trips, 5: number of cancellations */
+                __('%1$s: %2$s %% on time, average %3$s min delay, %4$d trips, %5$d cancelled', 'german-regional-train-monitor'),
                 $long_label,
+                TrainMon_Helpers::format_decimal($rate),
                 TrainMon_Helpers::format_decimal($avg),
-                TrainMon_Helpers::format_decimal($d['delayed_percent']),
                 $d['total'],
                 $d['cancelled']
             );
@@ -240,9 +259,11 @@ class TrainMon_Renderer {
                 . '<div class="trainmon-chart-bar trainmon-level-' . esc_attr($level) . '" style="height:' . esc_attr((string) $height) . '%"></div>'
                 . '</div>'
                 . '<div class="trainmon-chart-label">' . esc_html($label) . '</div>'
+                . '<div class="trainmon-chart-rate trainmon-rate-' . esc_attr($level) . '">' . esc_html((string) (int) round($rate)) . '</div>'
                 . '</div>';
         }
-        return '<div class="trainmon-chart trainmon-chart-hour" role="list" style="--trainmon-cols:' . esc_attr((string) count($hours)) . '">' . $cols . '</div>';
+        return '<div class="trainmon-chart trainmon-chart-hour" role="list" style="--trainmon-cols:' . esc_attr((string) count($hours)) . '">' . $cols . '</div>'
+            . '<div class="trainmon-chart-rate-caption">' . esc_html__('On time (%)', 'german-regional-train-monitor') . '</div>';
     }
 
     /** Year + month picker (GET form) so visitors can inspect a specific month. */
