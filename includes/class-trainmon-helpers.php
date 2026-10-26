@@ -89,10 +89,14 @@ class TrainMon_Helpers {
      * SQL-Bereich fuer eine Kalenderauswahl:
      * - Jahr + Monat -> genau dieser Monat
      * - nur Jahr     -> das ganze Jahr
+     * - nur Monat    -> dieser Kalendermonat ueber alle erfassten Jahre
      * - sonst        -> leer (dann greift der Zeitraum-Filter)
      */
     public static function range_to_sql(string $year, string $month): array {
         if (!self::valid_year($year)) {
+            if (self::valid_month($month)) {
+                return [' AND MONTH(planned_time) = %d ', [(int) $month]];
+            }
             return ['', []];
         }
         if (self::valid_month($month)) {
@@ -112,7 +116,11 @@ class TrainMon_Helpers {
 
     /** Lokalisierte Beschriftung fuer die aktuelle Kalenderauswahl. */
     public static function range_label(string $year, string $month): string {
-        if (!self::valid_year($year)) { return ''; }
+        if (!self::valid_year($year)) {
+            if (!self::valid_month($month)) { return ''; }
+            /* translators: %s: month name */
+            return sprintf(__('%s (all years)', 'german-regional-train-monitor'), $GLOBALS['wp_locale']->get_month($month));
+        }
         if (self::valid_month($month)) {
             $name = $GLOBALS['wp_locale']->get_month($month);
             return $name . ' ' . $year;

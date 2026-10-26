@@ -1,10 +1,10 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: German Regional Train Monitor 1.1.0\n"
+"Project-Id-Version: German Regional Train Monitor 1.2.0\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-10-22 12:00+0200\n"
+"PO-Revision-Date: 2026-10-26 12:00+0100\n"
 "Language: de_DE\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Domain: german-regional-train-monitor\n"
@@ -186,8 +186,8 @@ msgstr "Standard:"
 msgid "With period filter:"
 msgstr "Mit Zeitraumfilter:"
 
-msgid "With charts (average delay by departure hour and/or weekday):"
-msgstr "Mit Diagrammen (durchschnittliche Verspätung nach Abfahrtsstunde und/oder Wochentag):"
+msgid "With chart (average delay by departure hour, selectable by weekday):"
+msgstr "Mit Diagramm (durchschnittliche Verspätung nach Abfahrtsstunde, nach Wochentag wählbar):"
 
 msgid "Get free credentials for the \"Timetables\" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here."
 msgstr "Hol dir kostenlose Zugangsdaten für die „Timetables“-API im DB API Marketplace (developers.deutschebahn.com) und trage sie hier ein."
@@ -230,6 +230,9 @@ msgstr "API-HTTP-Status: %d"
 
 msgid "Could not read the XML from the DB API."
 msgstr "XML der DB-API konnte nicht gelesen werden."
+
+msgid "%s (all years)"
+msgstr "%s (alle Jahre)"
 
 msgid "Year %s"
 msgstr "Jahr %s"
@@ -294,20 +297,26 @@ msgstr "Ausfälle"
 msgid "total trips"
 msgstr "Fahrten gesamt"
 
-msgid "Average delay by weekday"
-msgstr "Durchschnittliche Verspätung nach Wochentag"
-
 msgid "Average delay by departure hour"
 msgstr "Durchschnittliche Verspätung nach Abfahrtsstunde"
 
 msgid "Not enough data for this chart yet."
 msgstr "Für dieses Diagramm liegen noch nicht genug Daten vor."
 
-msgid "%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled"
-msgstr "%1$s: durchschnittlich %2$s Min Verspätung, %3$s %% verspätet, %4$d Fahrten, %5$d Ausfälle"
+msgid "All days"
+msgstr "Alle Tage"
+
+msgid "Weekday"
+msgstr "Wochentag"
+
+msgid "No trips recorded for this weekday yet."
+msgstr "Für diesen Wochentag wurden noch keine Fahrten erfasst."
 
 msgid "Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips."
 msgstr "Balkenhöhe: durchschnittliche Verspätung in Minuten (ohne Ausfälle). Blasse Balken beruhen auf weniger als %d Fahrten."
+
+msgid "%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled"
+msgstr "%1$s: durchschnittlich %2$s Min Verspätung, %3$s %% verspätet, %4$d Fahrten, %5$d Ausfälle"
 
 msgid "All"
 msgstr "Alle"

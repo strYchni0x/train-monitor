@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DOMAIN = "german-regional-train-monitor"
 LANG_DIR = ROOT / "languages"
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 DE = {
     "German Regional Train Monitor": "German Regional Train Monitor",
@@ -108,15 +108,18 @@ DE = {
     "Year": "Jahr",
     "Month": "Monat",
     "Show": "Anzeigen",
-    "Average delay by weekday": "Durchschnittliche Verspätung nach Wochentag",
+    "%s (all years)": "%s (alle Jahre)",
     "Average delay by departure hour": "Durchschnittliche Verspätung nach Abfahrtsstunde",
+    "All days": "Alle Tage",
+    "Weekday": "Wochentag",
+    "No trips recorded for this weekday yet.": "Für diesen Wochentag wurden noch keine Fahrten erfasst.",
     "Not enough data for this chart yet.": "Für dieses Diagramm liegen noch nicht genug Daten vor.",
     "%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled":
         "%1$s: durchschnittlich %2$s Min Verspätung, %3$s %% verspätet, %4$d Fahrten, %5$d Ausfälle",
     "Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips.":
         "Balkenhöhe: durchschnittliche Verspätung in Minuten (ohne Ausfälle). Blasse Balken beruhen auf weniger als %d Fahrten.",
-    "With charts (average delay by departure hour and/or weekday):":
-        "Mit Diagrammen (durchschnittliche Verspätung nach Abfahrtsstunde und/oder Wochentag):",
+    "With chart (average delay by departure hour, selectable by weekday):":
+        "Mit Diagramm (durchschnittliche Verspätung nach Abfahrtsstunde, nach Wochentag wählbar):",
     "API credentials saved.": "API-Zugangsdaten gespeichert.",
     "Get free credentials for the \"Timetables\" API at the DB API Marketplace (developers.deutschebahn.com) and enter them here.":
         "Hol dir kostenlose Zugangsdaten für die „Timetables“-API im DB API Marketplace (developers.deutschebahn.com) und trage sie hier ein.",
@@ -210,7 +213,7 @@ def main():
         sys.exit(1)
 
     LANG_DIR.mkdir(exist_ok=True)
-    rev_date = "2026-10-22 12:00+0200"
+    rev_date = "2026-10-26 12:00+0100"
 
     pot = (
         'msgid ""\nmsgstr ""\n'

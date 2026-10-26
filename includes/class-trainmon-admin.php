@@ -251,9 +251,9 @@ class TrainMon_Admin {
             <code>[train_monitor period="30"]</code><br>
             <code>[train_monitor period="90"]</code><br>
             <code>[train_monitor period="all"]</code>
-            <p><?php esc_html_e('With charts (average delay by departure hour and/or weekday):', 'german-regional-train-monitor'); ?></p>
-            <code>[train_monitor charts="hour,weekday"]</code><br>
-            <code>[train_monitor charts="weekday" period="90"]</code>
+            <p><?php esc_html_e('With chart (average delay by departure hour, selectable by weekday):', 'german-regional-train-monitor'); ?></p>
+            <code>[train_monitor charts="hour"]</code><br>
+            <code>[train_monitor charts="hour" period="90"]</code>
 
             <h2><?php esc_html_e('API credentials', 'german-regional-train-monitor'); ?></h2>
             <?php

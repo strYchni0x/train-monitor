@@ -4,7 +4,7 @@ Tags: train, railway, delay, punctuality, timetable
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,9 +35,11 @@ over configurable periods.
 * Punctuality statistics per direction with a period filter (7, 30, 90, 365 days
   or the entire recorded period). Cancellations are counted separately.
 * Front-end year and month picker: inspect a specific month or a whole year to
-  compare, for example, winter versus summer punctuality.
-* Optional bar charts (pure CSS, no external libraries): average delay by
-  departure hour and by weekday, to see when delays are most likely.
+  compare, for example, winter versus summer punctuality. Choosing only a month
+  shows that month across all recorded years.
+* Optional bar chart (pure CSS, no external libraries): average delay by
+  departure hour, for all days or a selected weekday, to see when delays are
+  most likely.
 * Data is collected every 5 minutes via WP-Cron.
 * Source language English, with a bundled German translation (de_DE).
 
@@ -45,9 +47,9 @@ over configurable periods.
 
 `[train_monitor]` — default (last 30 days).
 `[train_monitor period="7"]`, `period="90"`, `period="365"`, `period="all"`.
-`[train_monitor charts="hour,weekday"]` — adds charts of the average delay by
-departure hour and by weekday (`charts="hour"`, `charts="weekday"` or
-`charts="all"` also work). The charts follow the period and the year/month filter.
+`[train_monitor charts="hour"]` — adds a chart of the average delay by departure
+hour with a weekday picker. The chart follows the period and the year/month
+filter. Values from 1.1.0 (`hour,weekday`, `weekday`, `all`) keep working.
 
 == External services ==
 
@@ -120,6 +122,14 @@ months are recorded you can compare them directly.
 2. The admin page: pick a station and a regional line.
 
 == Changelog ==
+
+= 1.2.0 =
+* Changed: one chart instead of two. The average delay by departure hour now has
+  a weekday picker ("All days" or Monday to Sunday) that switches without
+  reloading the page. All weekdays share one scale, so they can be compared.
+* Fix: choosing only a month (year "All") in the front-end filter was ignored and
+  the display stayed on the default period. It now shows that month across all
+  recorded years.
 
 = 1.1.0 =
 * New: optional bar charts of the average delay by departure hour and by weekday

@@ -66,48 +66,59 @@ class TrainMon_Stats {
     }
 
     /**
-     * Verspaetungs-Verteilung nach Abfahrtsstunde oder Wochentag.
-     * Gleiche Filter wie get_stats().
-     * @param string $group hour|weekday
-     * @return array<int, array{total:int, cancelled:int, delayed:int, avg_delay:float, delayed_percent:float}>
-     *         Schluessel: Stunde 0-23 bzw. Wochentag 0 (Mo) - 6 (So); nur Buckets mit Fahrten.
+     * Verspaetung je Abfahrtsstunde, einmal ueber alle Tage und je Wochentag.
+     * Gleiche Filter wie get_stats(). Eine Abfrage (Wochentag x Stunde), die
+     * Summen fuer "alle Tage" werden hier gebildet.
+     * @return array<string|int, array<int, array{total:int, cancelled:int, delayed:int, avg_delay:float, delayed_percent:float}>>
+     *         Schluessel: 'all' und Wochentag 0 (Mo) - 6 (So), darin Stunde 0-23; nur Stunden mit Fahrten.
      */
-    public static function get_distribution(string $eva, string $line, string $group, string $period = '30', ?string $direction = null, string $year = '', string $month = ''): array {
+    public static function get_hourly_by_weekday(string $eva, string $line, string $period = '30', ?string $direction = null, string $year = '', string $month = ''): array {
         global $wpdb;
         $table = TrainMon_Storage::table_name();
         [$where, $where_args] = self::build_where($eva, $line, $period, $direction, $year, $month);
         // Reihenfolge der Platzhalter: Schwellwert (SELECT), dann WHERE-Werte.
         $args = array_merge([TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES], $where_args);
-        // Feste Ausdruecke, keine Nutzereingabe.
-        $bucket_sql = $group === 'weekday' ? 'WEEKDAY(planned_time)' : 'HOUR(planned_time)';
 
         // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
         $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT $bucket_sql AS bucket,
+            "SELECT WEEKDAY(planned_time) AS wd, HOUR(planned_time) AS hr,
                 COUNT(*) AS total,
                 SUM(is_cancelled) AS cancelled,
-                AVG(CASE WHEN is_cancelled = 0 THEN delay_minutes END) AS avg_delay,
+                SUM(CASE WHEN is_cancelled = 0 THEN delay_minutes ELSE 0 END) AS delay_sum,
                 SUM(CASE WHEN is_cancelled = 0 AND delay_minutes > %d THEN 1 ELSE 0 END) AS delayed_count
             FROM $table $where
-            GROUP BY bucket
-            ORDER BY bucket",
+            GROUP BY wd, hr",
             $args
         ), ARRAY_A);
         // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
 
-        $result = [];
+        // Rohsummen je Variante, damit "alle Tage" exakt gewichtet ist.
+        $sums = ['all' => []];
         foreach ((array) $rows as $row) {
-            $total = (int) $row['total'];
-            $cancelled = (int) $row['cancelled'];
-            $running = $total - $cancelled;
-            $delayed = (int) $row['delayed_count'];
-            $result[(int) $row['bucket']] = [
-                'total' => $total,
-                'cancelled' => $cancelled,
-                'delayed' => $delayed,
-                'avg_delay' => (float) $row['avg_delay'],
-                'delayed_percent' => $running > 0 ? ($delayed / $running) * 100 : 0.0,
-            ];
+            $hr = (int) $row['hr'];
+            foreach (['all', (int) $row['wd']] as $key) {
+                $s = $sums[$key][$hr] ?? ['total' => 0, 'cancelled' => 0, 'delay_sum' => 0, 'delayed' => 0];
+                $s['total'] += (int) $row['total'];
+                $s['cancelled'] += (int) $row['cancelled'];
+                $s['delay_sum'] += (int) $row['delay_sum'];
+                $s['delayed'] += (int) $row['delayed_count'];
+                $sums[$key][$hr] = $s;
+            }
+        }
+
+        $result = [];
+        foreach ($sums as $key => $hours) {
+            ksort($hours);
+            foreach ($hours as $hr => $s) {
+                $running = $s['total'] - $s['cancelled'];
+                $result[$key][$hr] = [
+                    'total' => $s['total'],
+                    'cancelled' => $s['cancelled'],
+                    'delayed' => $s['delayed'],
+                    'avg_delay' => $running > 0 ? $s['delay_sum'] / $running : 0.0,
+                    'delayed_percent' => $running > 0 ? ($s['delayed'] / $running) * 100 : 0.0,
+                ];
+            }
         }
         return $result;
     }

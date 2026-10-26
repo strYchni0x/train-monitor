@@ -38,7 +38,7 @@ class TrainMon_Renderer {
         if (!TrainMon_Helpers::valid_year($sel_year)) { $sel_year = ''; }
         if (!TrainMon_Helpers::valid_month($sel_month)) { $sel_month = ''; }
 
-        $active_label = ($sel_year !== '')
+        $active_label = ($sel_year !== '' || $sel_month !== '')
             ? TrainMon_Helpers::range_label($sel_year, $sel_month)
             : self::period_label($period);
 
@@ -82,11 +82,12 @@ class TrainMon_Renderer {
                         echo self::stats_block((string) $dir['label'], $stats_dir, true);
                     endforeach; ?>
                 </div>
-                <?php foreach (self::parse_charts((string) $atts['charts']) as $group):
-                    $dist = TrainMon_Stats::get_distribution($eva, $line, $group, $period, null, $sel_year, $sel_month);
+                <?php if (self::charts_enabled((string) $atts['charts'])):
+                    wp_enqueue_script('trainmon-chart', TRAINMON_URL . 'assets/chart.js', [], TRAINMON_VERSION, true);
+                    $variants = TrainMon_Stats::get_hourly_by_weekday($eva, $line, $period, null, $sel_year, $sel_month);
                     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- HTML is assembled and escaped inside chart_block().
-                    echo self::chart_block($group, $dist);
-                endforeach; ?>
+                    echo self::chart_block($variants);
+                endif; ?>
                 <p class="trainmon-small"><?php
                     /* translators: %d: punctuality threshold in minutes */
                     echo esc_html(sprintf(__('On time means: at most %d minutes delay. Cancellations are counted separately and are not included in the average delay.', 'german-regional-train-monitor'), TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES));
@@ -143,42 +144,78 @@ class TrainMon_Renderer {
         </div>';
     }
 
-    /** Shortcode value "hour,weekday" / "all" -> list of chart groups in that order. */
-    private static function parse_charts(string $value): array {
-        $parts = array_map('trim', explode(',', strtolower($value)));
-        if (in_array('all', $parts, true)) { return ['hour', 'weekday']; }
-        return array_values(array_unique(array_intersect($parts, ['hour', 'weekday'])));
+    /**
+     * Shortcode attribute "charts": any value except empty/0/no/false/none
+     * turns the chart on. Older values ("hour", "weekday", "hour,weekday",
+     * "all") keep working and now all show the one hourly chart.
+     */
+    private static function charts_enabled(string $value): bool {
+        return !in_array(strtolower(trim($value)), ['', '0', 'no', 'false', 'none'], true);
     }
 
     /**
-     * Pure CSS bar chart of the average delay per departure hour or weekday.
+     * Pure CSS bar chart of the average delay per departure hour, with a
+     * weekday picker. All variants are rendered; assets/chart.js shows the
+     * picker and switches between them (without JS: "all days" only).
      * Bar colour follows the delay level, faded bars have too few trips.
      */
-    private static function chart_block(string $group, array $dist): string {
-        $title = $group === 'weekday'
-            ? __('Average delay by weekday', 'german-regional-train-monitor')
-            : __('Average delay by departure hour', 'german-regional-train-monitor');
-        $html = '<div class="trainmon-stat-section trainmon-chart-section"><h4>' . esc_html($title) . '</h4>';
-        if (empty($dist)) {
-            return $html . '<p class="trainmon-small">' . esc_html__('Not enough data for this chart yet.', 'german-regional-train-monitor') . '</p></div>';
+    private static function chart_block(array $variants): string {
+        $html = '<div class="trainmon-stat-section trainmon-chart-section"><div class="trainmon-chart-head"><h4>'
+            . esc_html__('Average delay by departure hour', 'german-regional-train-monitor') . '</h4>';
+        if (empty($variants['all'])) {
+            return $html . '</div><p class="trainmon-small">' . esc_html__('Not enough data for this chart yet.', 'german-regional-train-monitor') . '</p></div>';
         }
 
-        // Weekdays: always Mon-Sun. Hours: from the first to the last hour with trips.
-        $buckets = $group === 'weekday' ? range(0, 6) : range(min(array_keys($dist)), max(array_keys($dist)));
-        $max = max(1.0, max(array_column($dist, 'avg_delay')));
-        $threshold = TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES;
+        // WEEKDAY(): 0 = Monday; WP_Locale::get_weekday(): 0 = Sunday.
+        $weekdays = [];
+        for ($wd = 0; $wd <= 6; $wd++) {
+            $weekdays[$wd] = $GLOBALS['wp_locale']->get_weekday(($wd + 1) % 7);
+        }
+        $select_id = wp_unique_id('trainmon-weekday-');
+        $options = '<option value="all">' . esc_html__('All days', 'german-regional-train-monitor') . '</option>';
+        foreach ($weekdays as $wd => $name) {
+            $options .= '<option value="' . esc_attr((string) $wd) . '">' . esc_html($name) . '</option>';
+        }
+        $html .= '<label class="trainmon-weekday-picker" for="' . esc_attr($select_id) . '" hidden>'
+            . esc_html__('Weekday', 'german-regional-train-monitor')
+            . ' <select id="' . esc_attr($select_id) . '" class="trainmon-weekday-select">' . $options . '</select></label></div>';
 
-        $cols = '';
-        foreach ($buckets as $b) {
-            if ($group === 'weekday') {
-                // WEEKDAY(): 0 = Monday; WP_Locale::get_weekday(): 0 = Sunday.
-                $label = $GLOBALS['wp_locale']->get_weekday_abbrev($GLOBALS['wp_locale']->get_weekday(($b + 1) % 7));
-                $long_label = $GLOBALS['wp_locale']->get_weekday(($b + 1) % 7);
-            } else {
-                $label = sprintf('%02d', $b);
-                $long_label = sprintf('%02d:00–%02d:59', $b, $b);
+        // Same hour axis and scale for every weekday, so switching compares like with like.
+        // The scale ignores sparse bars (one outlier would flatten all others); taller bars are capped.
+        $hours = range(min(array_keys($variants['all'])), max(array_keys($variants['all'])));
+        $max = 0.0;
+        foreach ($variants as $dist) {
+            foreach ($dist as $d) {
+                if ($d['total'] >= self::CHART_MIN_TRIPS) { $max = max($max, $d['avg_delay']); }
             }
-            $d = $dist[$b] ?? null;
+        }
+        if ($max <= 0) { $max = max(array_column($variants['all'], 'avg_delay')); }
+        $max = max(1.0, $max);
+
+        foreach (array_merge(['all'], array_keys($weekdays)) as $key) {
+            $dist = $variants[$key] ?? [];
+            $html .= '<div class="trainmon-chart-variant" data-trainmon-weekday="' . esc_attr((string) $key) . '"' . ($key === 'all' ? '' : ' hidden') . '>';
+            $html .= empty($dist)
+                ? '<p class="trainmon-small">' . esc_html__('No trips recorded for this weekday yet.', 'german-regional-train-monitor') . '</p>'
+                : self::chart_columns($hours, $dist, $max);
+            $html .= '</div>';
+        }
+
+        return $html . '<p class="trainmon-small">' . esc_html(sprintf(
+                /* translators: %d: minimum number of trips per bar */
+                __('Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips.', 'german-regional-train-monitor'),
+                self::CHART_MIN_TRIPS
+            )) . '</p></div>';
+    }
+
+    /** One row of hour bars for chart_block(). */
+    private static function chart_columns(array $hours, array $dist, float $max): string {
+        $threshold = TrainMon_Plugin::PUNCTUAL_THRESHOLD_MINUTES;
+        $cols = '';
+        foreach ($hours as $h) {
+            $label = sprintf('%02d', $h);
+            $long_label = sprintf('%02d:00–%02d:59', $h, $h);
+            $d = $dist[$h] ?? null;
             if (!$d) {
                 $cols .= '<div class="trainmon-chart-col trainmon-chart-empty" role="listitem" aria-label="' . esc_attr($long_label . ': –') . '">'
                     . '<div class="trainmon-chart-plot"></div><div class="trainmon-chart-label">' . esc_html($label) . '</div></div>';
@@ -187,9 +224,9 @@ class TrainMon_Renderer {
             $avg = $d['avg_delay'];
             $level = $avg <= $threshold ? 'ok' : ($avg <= 10 ? 'warn' : 'bad');
             $sparse = $d['total'] < self::CHART_MIN_TRIPS ? ' trainmon-chart-sparse' : '';
-            $height = max(2, (int) round($avg / $max * 100));
+            $height = min(100, max(2, (int) round($avg / $max * 100)));
             $info = sprintf(
-                /* translators: 1: weekday or hour range, 2: average delay in minutes, 3: share of delayed trips in percent, 4: number of trips, 5: number of cancellations */
+                /* translators: 1: hour range, 2: average delay in minutes, 3: share of delayed trips in percent, 4: number of trips, 5: number of cancellations */
                 __('%1$s: average %2$s min delay, %3$s %% delayed, %4$d trips, %5$d cancelled', 'german-regional-train-monitor'),
                 $long_label,
                 TrainMon_Helpers::format_decimal($avg),
@@ -205,14 +242,7 @@ class TrainMon_Renderer {
                 . '<div class="trainmon-chart-label">' . esc_html($label) . '</div>'
                 . '</div>';
         }
-
-        return $html
-            . '<div class="trainmon-chart trainmon-chart-' . esc_attr($group) . '" role="list" style="--trainmon-cols:' . esc_attr((string) count($buckets)) . '">' . $cols . '</div>'
-            . '<p class="trainmon-small">' . esc_html(sprintf(
-                /* translators: %d: minimum number of trips per bar */
-                __('Bar height: average delay in minutes (cancellations excluded). Faded bars are based on fewer than %d trips.', 'german-regional-train-monitor'),
-                self::CHART_MIN_TRIPS
-            )) . '</p></div>';
+        return '<div class="trainmon-chart trainmon-chart-hour" role="list" style="--trainmon-cols:' . esc_attr((string) count($hours)) . '">' . $cols . '</div>';
     }
 
     /** Year + month picker (GET form) so visitors can inspect a specific month. */

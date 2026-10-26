@@ -89,6 +89,24 @@
     cursor: pointer;
 }
 .trainmon-btn:hover { background: #17603f; }
+.trainmon-chart-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: .5rem 1rem;
+    flex-wrap: wrap;
+    margin-bottom: .75rem;
+}
+.trainmon-chart-head h4 { margin: 0; }
+.trainmon-weekday-picker { font-size: .9rem; color: #5b6470; }
+.trainmon-weekday-picker[hidden], .trainmon-chart-variant[hidden] { display: none; }
+.trainmon-weekday-select {
+    margin-left: .35rem;
+    padding: .3rem .5rem;
+    border-radius: 8px;
+    border: 1px solid #d9dee5;
+    background: #fff;
+}
 .trainmon-chart {
     display: grid;
     grid-template-columns: repeat(var(--trainmon-cols, 7), minmax(0, 1fr));
